@@ -2415,9 +2415,9 @@ const SpaceMapComponent: React.FC = () => {
       });
 
       // Render projectiles as bright energy beams - optimized with for loop
-      const projectiles = projectilesRef.current;
-      for (let i = 0; i < projectiles.length; i++) {
-        const proj = projectiles[i];
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
         const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
         const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
         const screenX = centerX + wrappedDeltaX;
