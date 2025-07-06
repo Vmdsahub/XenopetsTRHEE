@@ -2077,12 +2077,11 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
-      // Create shooting stars less frequently for better performance
-      if (
-        currentTime - lastShootingStarTime.current >
-        15000 + Math.random() * 20000
-      ) {
-        // Every 15-35 seconds - less frequent for better performance
+      // Create shooting stars less frequently for better performance - even less for large canvas
+      const shootingStarInterval = isLargeCanvas
+        ? 25000 + Math.random() * 35000
+        : 15000 + Math.random() * 20000;
+      if (currentTime - lastShootingStarTime.current > shootingStarInterval) {
         createShootingStar(canvas);
         lastShootingStarTime.current = currentTime;
       }
