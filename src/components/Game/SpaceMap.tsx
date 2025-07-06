@@ -1577,6 +1577,83 @@ const SpaceMapComponent: React.FC = () => {
   }, [user?.isAdmin, isWorldEditMode, isDragging, selectedWorldId]);
 
   // Handle ESC key to cancel editing
+  // Draw FPS graph
+  const drawFpsGraph = useCallback(() => {
+    if (!fpsGraphRef.current) return;
+
+    const canvas = fpsGraphRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw grid lines
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.lineWidth = 1;
+
+    // Horizontal lines (FPS levels)
+    for (let fps = 30; fps <= 120; fps += 30) {
+      const y = height - (fps / 120) * height;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Draw FPS line
+    if (fpsHistory.length > 1) {
+      ctx.strokeStyle = "#00ff00";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      for (let i = 0; i < fpsHistory.length; i++) {
+        const x = (i / (fpsHistory.length - 1)) * width;
+        const y = height - (Math.min(fpsHistory[i], 120) / 120) * height;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        // Color based on performance
+        if (fpsHistory[i] < 30) {
+          ctx.strokeStyle = "#ff4444";
+        } else if (fpsHistory[i] < 50) {
+          ctx.strokeStyle = "#ffaa00";
+        } else {
+          ctx.strokeStyle = "#00ff00";
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    // Draw target FPS line (60 FPS)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    const targetY = height - (60 / 120) * height;
+    ctx.beginPath();
+    ctx.moveTo(0, targetY);
+    ctx.lineTo(width, targetY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }, [fpsHistory]);
+
+  // Update FPS graph when history changes
+  useEffect(() => {
+    drawFpsGraph();
+  }, [drawFpsGraph]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && user?.isAdmin && isWorldEditMode) {
