@@ -2192,13 +2192,16 @@ const SpaceMapComponent: React.FC = () => {
         bottom: canvas.height + renderBuffer,
       };
 
-      // Batch stars by type for optimized rendering - pre-calculate size for performance
+      // Optimized batching with LOD for large canvas
       const starBatches = { normal: [], bright: [], giant: [] };
       const starArray = starsRef.current;
       const arrayLength = starArray.length;
 
+      // Skip every other star for distant layers to reduce load
+      const skipFactor = canvas.width > 1000 ? 2 : 1;
+
       // Use more aggressive culling and simplified calculations
-      for (let i = 0; i < arrayLength; i++) {
+      for (let i = 0; i < arrayLength; i += skipFactor) {
         const star = starArray[i];
         const wrappedDeltaX = getWrappedDistance(star.x, gameState.camera.x);
         const wrappedDeltaY = getWrappedDistance(star.y, gameState.camera.y);
@@ -2215,8 +2218,9 @@ const SpaceMapComponent: React.FC = () => {
           screenY >= renderViewport.top &&
           screenY <= renderViewport.bottom
         ) {
-          // Simplified twinkling - less CPU intensive
-          const twinkleAlpha = Math.sin(star.twinkle) * 0.3 + 0.7;
+          // Simplified twinkling - less CPU intensive for distant stars
+          const twinkleAlpha =
+            star.parallax < 0.3 ? 0.8 : Math.sin(star.twinkle) * 0.3 + 0.7;
           const pulseSize =
             star.type === "giant" ? Math.sin(star.pulse * 0.5) * 0.2 + 1 : 1;
 
