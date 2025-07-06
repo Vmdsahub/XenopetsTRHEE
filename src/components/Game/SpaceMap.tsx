@@ -1661,6 +1661,12 @@ const SpaceMapComponent: React.FC = () => {
 
       const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
 
+      // Intelligent frame skipping for large canvas - skip non-critical updates
+      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
+      const frameSkip = isLargeCanvas ? 2 : 1;
+      const skipFrame = frameCounter.current % frameSkip !== 0;
+      frameCounter.current++;
+
       // Calculate FPS less frequently for better performance
       if (fpsRef.current.lastTime > 0) {
         const frameTime = currentTime - fpsRef.current.lastTime;
