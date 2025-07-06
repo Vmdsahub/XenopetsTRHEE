@@ -3155,16 +3155,28 @@ const SpaceMapComponent: React.FC = () => {
             Math.sqrt(gameState.ship.vx ** 2 + gameState.ship.vy ** 2) * 10,
           ) / 10}
         </div>
-        <div
-          className={
-            fps < 30
-              ? "text-red-400"
-              : fps < 50
-                ? "text-yellow-400"
-                : "text-green-400"
-          }
-        >
-          FPS: {fps}
+        <div className="flex items-center gap-2">
+          <div
+            className={
+              fps < 30
+                ? "text-red-400"
+                : fps < 50
+                  ? "text-yellow-400"
+                  : "text-green-400"
+            }
+          >
+            FPS: {fps}
+          </div>
+          <canvas
+            ref={fpsGraphRef}
+            width={80}
+            height={30}
+            className="border border-gray-600 rounded"
+            style={{
+              imageRendering: "pixelated",
+              background: "rgba(0, 0, 0, 0.5)",
+            }}
+          />
         </div>
       </div>
 
