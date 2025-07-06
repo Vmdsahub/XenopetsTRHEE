@@ -2183,8 +2183,8 @@ const SpaceMapComponent: React.FC = () => {
       ctx.fillStyle = nebulaGradient4;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Render stars with optimized viewport culling
-      const renderBuffer = Math.min(RENDER_BUFFER, 100); // Reduce buffer for better performance
+      // Aggressive viewport culling for larger canvas
+      const renderBuffer = Math.min(RENDER_BUFFER, 50); // Further reduce buffer for large canvas
       const renderViewport = {
         left: -renderBuffer,
         right: canvas.width + renderBuffer,
