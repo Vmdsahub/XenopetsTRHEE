@@ -121,7 +121,7 @@ function App() {
         return <PetScreen />;
       case "world":
         return (
-          <div className="max-w-2xl mx-auto pb-24">
+          <div className="max-w-6xl mx-auto pb-24">
             <div className="bg-white rounded-3xl shadow-xl p-4">
               <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
                 Mapa Galáctico
