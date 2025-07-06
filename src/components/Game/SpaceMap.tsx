@@ -1614,9 +1614,9 @@ const SpaceMapComponent: React.FC = () => {
 
       for (let i = 1; i < fpsHistory.length; i++) {
         const x1 = ((i - 1) / (fpsHistory.length - 1)) * width;
-        const y1 = height - (Math.min(fpsHistory[i - 1], 120) / 120) * height;
+        const y1 = height - (Math.min(fpsHistory[i - 1], 300) / 300) * height;
         const x2 = (i / (fpsHistory.length - 1)) * width;
-        const y2 = height - (Math.min(fpsHistory[i], 120) / 120) * height;
+        const y2 = height - (Math.min(fpsHistory[i], 300) / 300) * height;
 
         // Color based on current FPS
         if (fpsHistory[i] < 30) {
