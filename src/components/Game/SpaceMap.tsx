@@ -224,6 +224,10 @@ const SpaceMapComponent: React.FC = () => {
     frameTimes: [] as number[],
   });
 
+  // FPS history for graph (keep last 60 FPS values)
+  const [fpsHistory, setFpsHistory] = useState<number[]>(Array(60).fill(60));
+  const fpsGraphRef = useRef<HTMLCanvasElement>(null);
+
   // Mouse state tracking
   const [mouseInWindow, setMouseInWindow] = useState(true);
 
