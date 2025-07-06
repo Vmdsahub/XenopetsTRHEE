@@ -1645,7 +1645,7 @@ const SpaceMapComponent: React.FC = () => {
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
     ctx.lineWidth = 1;
     ctx.setLineDash([5, 5]);
-    const targetY = height - (60 / 120) * height;
+    const targetY = height - (60 / 300) * height;
     ctx.beginPath();
     ctx.moveTo(0, targetY);
     ctx.lineTo(width, targetY);
