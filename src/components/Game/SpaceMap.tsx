@@ -1690,6 +1690,13 @@ const SpaceMapComponent: React.FC = () => {
             fpsRef.current.frameTimes.length;
           const currentFps = Math.round(1000 / avgFrameTime);
           setFps(currentFps);
+
+          // Update FPS history for graph
+          setFpsHistory((prev) => {
+            const newHistory = [...prev.slice(1), currentFps];
+            return newHistory;
+          });
+
           fpsRef.current.frameCount = 0;
         }
       }
