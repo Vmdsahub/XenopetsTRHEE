@@ -2472,7 +2472,7 @@ const SpaceMapComponent: React.FC = () => {
         ctx.shadowBlur = 0;
 
         ctx.restore();
-      });
+      }
 
       // Render shooting stars
       shootingStarsRef.current.forEach((shootingStar) => {
