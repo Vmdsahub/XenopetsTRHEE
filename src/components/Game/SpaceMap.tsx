@@ -1608,23 +1608,17 @@ const SpaceMapComponent: React.FC = () => {
       ctx.stroke();
     }
 
-    // Draw FPS line
+    // Draw FPS line with gradient
     if (fpsHistory.length > 1) {
-      ctx.strokeStyle = "#00ff00";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+      ctx.lineWidth = 1.5;
 
-      for (let i = 0; i < fpsHistory.length; i++) {
-        const x = (i / (fpsHistory.length - 1)) * width;
-        const y = height - (Math.min(fpsHistory[i], 120) / 120) * height;
+      for (let i = 1; i < fpsHistory.length; i++) {
+        const x1 = ((i - 1) / (fpsHistory.length - 1)) * width;
+        const y1 = height - (Math.min(fpsHistory[i - 1], 120) / 120) * height;
+        const x2 = (i / (fpsHistory.length - 1)) * width;
+        const y2 = height - (Math.min(fpsHistory[i], 120) / 120) * height;
 
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-
-        // Color based on performance
+        // Color based on current FPS
         if (fpsHistory[i] < 30) {
           ctx.strokeStyle = "#ff4444";
         } else if (fpsHistory[i] < 50) {
@@ -1632,10 +1626,20 @@ const SpaceMapComponent: React.FC = () => {
         } else {
           ctx.strokeStyle = "#00ff00";
         }
-      }
 
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
     }
+
+    // Draw FPS labels
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.font = "8px monospace";
+    ctx.fillText("120", 2, 10);
+    ctx.fillText("60", 2, height / 2 + 3);
+    ctx.fillText("30", 2, height - 2);
 
     // Draw target FPS line (60 FPS)
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
