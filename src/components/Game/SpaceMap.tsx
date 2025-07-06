@@ -2487,9 +2487,9 @@ const SpaceMapComponent: React.FC = () => {
       }
 
       // Render shooting stars - optimized with for loop
-      const shootingStars = shootingStarsRef.current;
-      for (let i = 0; i < shootingStars.length; i++) {
-        drawShootingStar(ctx, shootingStars[i]);
+      const shootingStarsForRender = shootingStarsRef.current;
+      for (let i = 0; i < shootingStarsForRender.length; i++) {
+        drawShootingStar(ctx, shootingStarsForRender[i]);
       }
 
       // Render ship trail before ship (so trail appears behind ship)
