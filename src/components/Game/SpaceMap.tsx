@@ -1600,8 +1600,8 @@ const SpaceMapComponent: React.FC = () => {
     ctx.lineWidth = 1;
 
     // Horizontal lines (FPS levels)
-    for (let fps = 30; fps <= 120; fps += 30) {
-      const y = height - (fps / 120) * height;
+    for (let fps = 60; fps <= 300; fps += 60) {
+      const y = height - (fps / 300) * height;
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
