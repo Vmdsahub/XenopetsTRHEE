@@ -1637,9 +1637,9 @@ const SpaceMapComponent: React.FC = () => {
     // Draw FPS labels
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
     ctx.font = "8px monospace";
-    ctx.fillText("120", 2, 10);
-    ctx.fillText("60", 2, height / 2 + 3);
-    ctx.fillText("30", 2, height - 2);
+    ctx.fillText("300", 2, 10);
+    ctx.fillText("180", 2, height / 3 + 3);
+    ctx.fillText("60", 2, (height * 2) / 3 + 3);
 
     // Draw target FPS line (60 FPS)
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
