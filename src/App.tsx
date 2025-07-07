@@ -121,12 +121,9 @@ function App() {
         return <PetScreen />;
       case "world":
         return (
-          <div className="max-w-6xl mx-auto pb-24">
-            <div className="bg-white rounded-3xl shadow-xl p-4">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                Mapa Galáctico
-              </h1>
-              <div className="w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative">
+          <div className="w-screen h-screen overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-black">
+              <div className="w-full h-[calc(100vh-160px)] mt-20 mb-20 relative overflow-hidden">
                 <SpaceMap />
               </div>
             </div>
