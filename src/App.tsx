@@ -192,12 +192,12 @@ function App() {
                 }}
               >
                 {renderScreen}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-
-        <BottomNavigation />
-      </div>
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          <BottomNavigation />
+        </div>
+      )}
     </MusicProvider>
   );
 }
