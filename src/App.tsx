@@ -120,18 +120,7 @@ function App() {
       case "pet":
         return <PetScreen />;
       case "world":
-        return (
-          <div className="max-w-2xl mx-auto pb-24">
-            <div className="bg-white rounded-3xl shadow-xl p-4">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                Mapa Galáctico
-              </h1>
-              <div className="w-full h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] md:h-[calc(100vh-320px)] lg:h-[calc(100vh-340px)] relative">
-                <SpaceMap />
-              </div>
-            </div>
-          </div>
-        );
+        return <SpaceMap />;
       case "store":
         return <StoreScreen />;
       case "inventory":
@@ -173,30 +162,36 @@ function App() {
   return (
     <MusicProvider musicState={musicState}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
-        {/* Componente de pré-carregamento de áudios */}
         <AudioPreloader />
-
         <TopBar />
 
-        <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentScreen}
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
-              className="smooth-animation force-gpu-layer"
-              style={{
-                transform: "translate3d(0, 0, 0)",
-                willChange: "transform, opacity",
-              }}
-            >
-              {renderScreen}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        {currentScreen === "world" ? (
+          // Expanded layout for world screen - full width, minimal vertical padding
+          <main className="absolute top-20 bottom-20 left-0 right-0 overflow-hidden">
+            {renderScreen}
+          </main>
+        ) : (
+          // Normal layout for other screens
+          <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentScreen}
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={pageTransition}
+                className="smooth-animation force-gpu-layer"
+                style={{
+                  transform: "translate3d(0, 0, 0)",
+                  willChange: "transform, opacity",
+                }}
+              >
+                {renderScreen}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        )}
 
         <BottomNavigation />
       </div>

@@ -160,6 +160,7 @@ const SpaceMapComponent: React.FC = () => {
   const lastRadarCheckRef = useRef<Set<string>>(new Set());
   const shootingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastFrameTimeRef = useRef(performance.now());
+  const frameCounter = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
   const lastRadarPulseTime = useRef<Map<string, number>>(new Map());
   const planetImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -222,6 +223,10 @@ const SpaceMapComponent: React.FC = () => {
     lastTime: 0,
     frameTimes: [] as number[],
   });
+
+  // FPS history for graph (keep last 60 FPS values)
+  const [fpsHistory, setFpsHistory] = useState<number[]>(Array(60).fill(60));
+  const fpsGraphRef = useRef<HTMLCanvasElement>(null);
 
   // Mouse state tracking
   const [mouseInWindow, setMouseInWindow] = useState(true);
@@ -1572,6 +1577,87 @@ const SpaceMapComponent: React.FC = () => {
   }, [user?.isAdmin, isWorldEditMode, isDragging, selectedWorldId]);
 
   // Handle ESC key to cancel editing
+  // Draw FPS graph
+  const drawFpsGraph = useCallback(() => {
+    if (!fpsGraphRef.current) return;
+
+    const canvas = fpsGraphRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw grid lines
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.lineWidth = 1;
+
+    // Horizontal lines (FPS levels)
+    for (let fps = 60; fps <= 300; fps += 60) {
+      const y = height - (fps / 300) * height;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Draw FPS line with gradient
+    if (fpsHistory.length > 1) {
+      ctx.lineWidth = 1.5;
+
+      for (let i = 1; i < fpsHistory.length; i++) {
+        const x1 = ((i - 1) / (fpsHistory.length - 1)) * width;
+        const y1 = height - (Math.min(fpsHistory[i - 1], 300) / 300) * height;
+        const x2 = (i / (fpsHistory.length - 1)) * width;
+        const y2 = height - (Math.min(fpsHistory[i], 300) / 300) * height;
+
+        // Color based on current FPS
+        if (fpsHistory[i] < 30) {
+          ctx.strokeStyle = "#ff4444";
+        } else if (fpsHistory[i] < 50) {
+          ctx.strokeStyle = "#ffaa00";
+        } else {
+          ctx.strokeStyle = "#00ff00";
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+
+    // Draw FPS labels
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.font = "8px monospace";
+    ctx.fillText("300", 2, 10);
+    ctx.fillText("180", 2, height / 3 + 3);
+    ctx.fillText("60", 2, (height * 2) / 3 + 3);
+
+    // Draw target FPS line (60 FPS)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    const targetY = height - (60 / 300) * height;
+    ctx.beginPath();
+    ctx.moveTo(0, targetY);
+    ctx.lineTo(width, targetY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }, [fpsHistory]);
+
+  // Update FPS graph when history changes
+  useEffect(() => {
+    drawFpsGraph();
+  }, [drawFpsGraph]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && user?.isAdmin && isWorldEditMode) {
@@ -1625,7 +1711,7 @@ const SpaceMapComponent: React.FC = () => {
     };
   }, []);
 
-  // Parar tiro quando mouse sai da área do canvas
+  // Parar tiro quando mouse sai da ��rea do canvas
   const handleMouseLeaveCanvas = useCallback(() => {
     setIsMousePressed(false);
     if (shootingIntervalRef.current) {
@@ -1661,6 +1747,12 @@ const SpaceMapComponent: React.FC = () => {
 
       const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
 
+      // Intelligent frame skipping for large canvas - skip non-critical updates
+      const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
+      const frameSkip = isLargeCanvas ? 2 : 1;
+      const skipFrame = frameCounter.current % frameSkip !== 0;
+      frameCounter.current++;
+
       // Calculate FPS less frequently for better performance
       if (fpsRef.current.lastTime > 0) {
         const frameTime = currentTime - fpsRef.current.lastTime;
@@ -1679,6 +1771,13 @@ const SpaceMapComponent: React.FC = () => {
             fpsRef.current.frameTimes.length;
           const currentFps = Math.round(1000 / avgFrameTime);
           setFps(currentFps);
+
+          // Update FPS history for graph
+          setFpsHistory((prev) => {
+            const newHistory = [...prev.slice(1), currentFps];
+            return newHistory;
+          });
+
           fpsRef.current.frameCount = 0;
         }
       }
@@ -1970,13 +2069,19 @@ const SpaceMapComponent: React.FC = () => {
         }))
         .filter((pulse) => pulse.life > 0 && pulse.radius <= pulse.maxRadius);
 
-      // Update stars with smooth floating motion - limited to 10 FPS
-      if (currentTime - lastStarUpdateTime.current >= STAR_UPDATE_INTERVAL) {
+      // Update stars with smooth floating motion - limited to 10 FPS, with frame skipping for large canvas
+      if (
+        currentTime - lastStarUpdateTime.current >= STAR_UPDATE_INTERVAL &&
+        !skipFrame
+      ) {
         const stars = starsRef.current;
         const time = currentTime * 0.0008; // Slower, more natural timing
         const starsLength = stars.length;
 
-        for (let i = 0; i < starsLength; i++) {
+        // Skip stars for large canvas to improve performance
+        const stepSize = isLargeCanvas ? 2 : 1;
+
+        for (let i = 0; i < starsLength; i += stepSize) {
           const star = stars[i];
 
           // Natural floating motion with multiple sine waves for organic movement
@@ -2064,12 +2169,11 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
-      // Create shooting stars less frequently for better performance
-      if (
-        currentTime - lastShootingStarTime.current >
-        15000 + Math.random() * 20000
-      ) {
-        // Every 15-35 seconds - less frequent for better performance
+      // Create shooting stars less frequently for better performance - even less for large canvas
+      const shootingStarInterval = isLargeCanvas
+        ? 25000 + Math.random() * 35000
+        : 15000 + Math.random() * 20000;
+      if (currentTime - lastShootingStarTime.current > shootingStarInterval) {
         createShootingStar(canvas);
         lastShootingStarTime.current = currentTime;
       }
@@ -2183,8 +2287,8 @@ const SpaceMapComponent: React.FC = () => {
       ctx.fillStyle = nebulaGradient4;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Render stars with optimized viewport culling
-      const renderBuffer = Math.min(RENDER_BUFFER, 100); // Reduce buffer for better performance
+      // Aggressive viewport culling for larger canvas
+      const renderBuffer = Math.min(RENDER_BUFFER, 50); // Further reduce buffer for large canvas
       const renderViewport = {
         left: -renderBuffer,
         right: canvas.width + renderBuffer,
@@ -2192,13 +2296,16 @@ const SpaceMapComponent: React.FC = () => {
         bottom: canvas.height + renderBuffer,
       };
 
-      // Batch stars by type for optimized rendering - pre-calculate size for performance
+      // Optimized batching with LOD for large canvas
       const starBatches = { normal: [], bright: [], giant: [] };
       const starArray = starsRef.current;
       const arrayLength = starArray.length;
 
+      // Skip every other star for distant layers to reduce load
+      const skipFactor = canvas.width > 1000 ? 2 : 1;
+
       // Use more aggressive culling and simplified calculations
-      for (let i = 0; i < arrayLength; i++) {
+      for (let i = 0; i < arrayLength; i += skipFactor) {
         const star = starArray[i];
         const wrappedDeltaX = getWrappedDistance(star.x, gameState.camera.x);
         const wrappedDeltaY = getWrappedDistance(star.y, gameState.camera.y);
@@ -2215,8 +2322,9 @@ const SpaceMapComponent: React.FC = () => {
           screenY >= renderViewport.top &&
           screenY <= renderViewport.bottom
         ) {
-          // Simplified twinkling - less CPU intensive
-          const twinkleAlpha = Math.sin(star.twinkle) * 0.3 + 0.7;
+          // Simplified twinkling - less CPU intensive for distant stars
+          const twinkleAlpha =
+            star.parallax < 0.3 ? 0.8 : Math.sin(star.twinkle) * 0.3 + 0.7;
           const pulseSize =
             star.type === "giant" ? Math.sin(star.pulse * 0.5) * 0.2 + 1 : 1;
 
@@ -2398,8 +2506,10 @@ const SpaceMapComponent: React.FC = () => {
         }
       });
 
-      // Render projectiles as bright energy beams
-      projectilesRef.current.forEach((proj) => {
+      // Render projectiles as bright energy beams - optimized with for loop
+      const projectilesForRender = projectilesRef.current;
+      for (let i = 0; i < projectilesForRender.length; i++) {
+        const proj = projectilesForRender[i];
         const wrappedDeltaX = getWrappedDistance(proj.x, gameState.camera.x);
         const wrappedDeltaY = getWrappedDistance(proj.y, gameState.camera.y);
         const screenX = centerX + wrappedDeltaX;
@@ -2466,12 +2576,13 @@ const SpaceMapComponent: React.FC = () => {
         ctx.shadowBlur = 0;
 
         ctx.restore();
-      });
+      }
 
-      // Render shooting stars
-      shootingStarsRef.current.forEach((shootingStar) => {
-        drawShootingStar(ctx, shootingStar);
-      });
+      // Render shooting stars - optimized with for loop
+      const shootingStarsForRender = shootingStarsRef.current;
+      for (let i = 0; i < shootingStarsForRender.length; i++) {
+        drawShootingStar(ctx, shootingStarsForRender[i]);
+      }
 
       // Render ship trail before ship (so trail appears behind ship)
       let shipWorldX = gameState.ship.x;
@@ -3048,16 +3159,28 @@ const SpaceMapComponent: React.FC = () => {
             Math.sqrt(gameState.ship.vx ** 2 + gameState.ship.vy ** 2) * 10,
           ) / 10}
         </div>
-        <div
-          className={
-            fps < 30
-              ? "text-red-400"
-              : fps < 50
-                ? "text-yellow-400"
-                : "text-green-400"
-          }
-        >
-          FPS: {fps}
+        <div className="flex items-center gap-2">
+          <div
+            className={
+              fps < 30
+                ? "text-red-400"
+                : fps < 50
+                  ? "text-yellow-400"
+                  : "text-green-400"
+            }
+          >
+            FPS: {fps}
+          </div>
+          <canvas
+            ref={fpsGraphRef}
+            width={80}
+            height={30}
+            className="border border-gray-600 rounded"
+            style={{
+              imageRendering: "pixelated",
+              background: "rgba(0, 0, 0, 0.5)",
+            }}
+          />
         </div>
       </div>
 
