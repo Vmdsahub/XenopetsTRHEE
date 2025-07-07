@@ -120,11 +120,7 @@ function App() {
       case "pet":
         return <PetScreen />;
       case "world":
-        return (
-          <div className="fixed inset-0 w-full h-full">
-            <SpaceMap />
-          </div>
-        );
+        return <SpaceMap />;
       case "store":
         return <StoreScreen />;
       case "inventory":
