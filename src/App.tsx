@@ -165,17 +165,17 @@ function App() {
 
   return (
     <MusicProvider musicState={musicState}>
-      {currentScreen === "world" ? (
-        // Full-screen layout for world screen
-        <div className="fixed inset-0 w-full h-full overflow-hidden">
-          <AudioPreloader />
-          {renderScreen}
-        </div>
-      ) : (
-        // Normal layout for other screens
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
-          <AudioPreloader />
-          <TopBar />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 gpu-accelerated force-gpu-layer">
+        <AudioPreloader />
+        <TopBar />
+
+        {currentScreen === "world" ? (
+          // Expanded layout for world screen - full width, minimal vertical padding
+          <main className="absolute top-20 bottom-20 left-0 right-0 overflow-hidden">
+            {renderScreen}
+          </main>
+        ) : (
+          // Normal layout for other screens
           <main className="pt-20 pb-8 px-4 min-h-screen composite-layer force-gpu-layer">
             <AnimatePresence mode="wait">
               <motion.div
@@ -195,9 +195,10 @@ function App() {
               </motion.div>
             </AnimatePresence>
           </main>
-          <BottomNavigation />
-        </div>
-      )}
+        )}
+
+        <BottomNavigation />
+      </div>
     </MusicProvider>
   );
 }
