@@ -121,12 +121,8 @@ function App() {
         return <PetScreen />;
       case "world":
         return (
-          <div className="w-screen h-screen overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-black">
-              <div className="w-full h-[calc(100vh-160px)] mt-20 mb-20 relative overflow-hidden">
-                <SpaceMap />
-              </div>
-            </div>
+          <div className="fixed inset-0 w-full h-full">
+            <SpaceMap />
           </div>
         );
       case "store":
