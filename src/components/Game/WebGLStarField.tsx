@@ -310,11 +310,10 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
             float screenX = centerX + parallaxX;
             float screenY = centerY + parallaxY;
 
-            // Transform screen coordinates to normalized device coordinates for orthographic projection
-            float ndcX = (screenX - centerX) / centerX;
-            float ndcY = (centerY - screenY) / centerY; // Flip Y axis
-
-            gl_Position = vec4(ndcX, ndcY, 0.0, 1.0);
+            // Use world matrix transformation instead of manual NDC calculation
+            vec4 worldPosition = vec4(screenX - centerX, centerY - screenY, 0.0, 1.0);
+            vec4 mvPosition = modelViewMatrix * worldPosition;
+            gl_Position = projectionMatrix * mvPosition;
 
             // Calculate twinkling and pulsing
             float twinkleAlpha = sin(twinklePhase + time * speed * 0.4) * 0.3 + 0.7;
@@ -323,7 +322,7 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
             vOpacity = opacity * twinkleAlpha;
             vTwinkle = twinkleAlpha;
 
-            gl_PointSize = size * pulseSize * 2.0; // Scale up for visibility
+            gl_PointSize = size * pulseSize * 4.0; // Increase size for visibility
           }
         `,
         fragmentShader: `
