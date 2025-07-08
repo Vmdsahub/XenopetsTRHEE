@@ -150,7 +150,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
       if (star.type === "giant") sizeMult = 2.5;
       else if (star.type === "bright") sizeMult = 1.8;
 
-      sizes[i] = star.size * sizeMult;
+      sizes[i] = star.size * sizeMult * 4.0; // Make stars much bigger
       parallaxValues[i] = star.parallax;
       opacities[i] = star.opacity;
       basePositionsX[i] = star.baseX;
@@ -223,68 +223,68 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         attribute float floatPhaseY;
         attribute float speed;
         attribute float twinklePhase;
-        
+
         uniform float time;
         uniform float cameraX;
         uniform float cameraY;
         uniform float worldSize;
         uniform float centerX;
         uniform float centerY;
-        
+
         varying vec3 vColor;
         varying float vOpacity;
         varying float vTwinkle;
-        
+
         float normalizeCoord(float coord) {
           return mod(coord + worldSize * 0.5, worldSize) - worldSize * 0.5;
         }
-        
+
         float getWrappedDistance(float pos1, float pos2) {
           float delta = pos1 - pos2;
           return mod(delta + worldSize * 0.5, worldSize) - worldSize * 0.5;
         }
-        
+
         void main() {
           vColor = color;
-          
+
           // Calculate floating motion
           float timeOffset = time * 0.0008;
           float baseSpeed = 0.8 + speed * 0.4;
           float primaryTime = timeOffset * baseSpeed;
           float secondaryTime = timeOffset * baseSpeed * 0.6;
-          
+
           float floatX = sin(primaryTime + floatPhaseX) * floatAmplitudeX * 0.6 +
                         sin(secondaryTime * 0.7 + floatPhaseX * 1.3) * floatAmplitudeX * 0.3;
-                        
+
           float floatY = cos(primaryTime * 0.8 + floatPhaseY) * floatAmplitudeY * 0.6 +
                         cos(secondaryTime * 0.6 + floatPhaseY * 1.2) * floatAmplitudeY * 0.3;
-          
+
           // Calculate star world position
           float starX = normalizeCoord(basePositionX + floatX);
           float starY = normalizeCoord(basePositionY + floatY);
-          
+
           // Apply parallax
           float wrappedDeltaX = getWrappedDistance(starX, cameraX);
           float wrappedDeltaY = getWrappedDistance(starY, cameraY);
-          
+
           float parallaxX = wrappedDeltaX * parallax;
           float parallaxY = wrappedDeltaY * parallax;
-          
+
           float screenX = centerX + parallaxX;
           float screenY = centerY + parallaxY;
-          
+
           // Convert to world space (relative to center)
           vec3 worldPos = vec3(screenX - centerX, centerY - screenY, 0.0);
           vec4 mvPosition = modelViewMatrix * vec4(worldPos, 1.0);
           gl_Position = projectionMatrix * mvPosition;
-          
+
           // Calculate twinkling and pulsing
           float twinkleAlpha = sin(twinklePhase + timeOffset * speed * 4.0) * 0.3 + 0.7;
           float pulseSize = sin(twinklePhase * 1.5 + timeOffset * speed * 3.0) * 0.2 + 1.0;
-          
+
           vOpacity = opacity * twinkleAlpha;
           vTwinkle = twinkleAlpha;
-          
+
           gl_PointSize = size * pulseSize;
         }
       `,
@@ -292,27 +292,27 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         varying vec3 vColor;
         varying float vOpacity;
         varying float vTwinkle;
-        
+
         void main() {
           vec2 center = gl_PointCoord - vec2(0.5);
           float distance = length(center);
-          
+
           // Create bright core
           float core = 1.0 - smoothstep(0.0, 0.2, distance);
           core = pow(core, 0.5);
-          
+
           // Create soft glow
           float glow = 1.0 - smoothstep(0.0, 0.5, distance);
           glow = pow(glow, 2.0);
-          
+
           // Combine with different intensities
           float intensity = core * 0.8 + glow * 0.4;
-          
+
           // Add twinkle variation
           intensity *= (0.7 + 0.3 * vTwinkle);
-          
+
           float finalAlpha = intensity * vOpacity;
-          
+
           gl_FragColor = vec4(vColor, finalAlpha);
         }
       `,
