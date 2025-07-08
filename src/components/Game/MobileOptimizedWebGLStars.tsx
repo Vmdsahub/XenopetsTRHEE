@@ -198,6 +198,14 @@ export const MobileOptimizedWebGLStars: React.FC<
     pointsRef.current = points;
     materialRef.current = material;
     scene.add(points);
+
+    // Debug logging for mobile
+    console.log(
+      `Mobile WebGL Stars: Created ${sampledStars.length} stars from ${stars.length} total stars`,
+    );
+    console.log(
+      `Canvas size: ${width}x${height}, Device pixel ratio: ${window.devicePixelRatio}`,
+    );
   }, [stars, cameraX, cameraY, width, height]);
 
   // Optimized animation loop with unlimited FPS for 120Hz+ mobile displays
