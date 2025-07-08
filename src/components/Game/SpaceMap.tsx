@@ -942,10 +942,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.022 + 0.009,
         parallax: 1.0, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.15 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -2050,7 +2047,7 @@ const SpaceMapComponent: React.FC = () => {
       radarPulsesRef.current = radarPulsesRef.current
         .map((pulse) => ({
           ...pulse,
-          radius: pulse.radius + 0.4, // Expansão muito mais lenta
+          radius: pulse.radius + 0.4, // Expans��o muito mais lenta
           life: pulse.life - 1,
         }))
         .filter((pulse) => pulse.life > 0 && pulse.radius <= pulse.maxRadius);
