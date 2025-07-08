@@ -2846,6 +2846,22 @@ const SpaceMapComponent: React.FC = () => {
           >
             {isWorldEditMode ? "Sair Edição" : "Editar Mundos"}
           </button>
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setBarrierCollisionEnabled(!isBarrierCollisionEnabled);
+            }}
+            className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+              isBarrierCollisionEnabled
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-orange-600 text-white hover:bg-orange-700"
+            }`}
+            style={{ pointerEvents: "auto" }}
+          >
+            {isBarrierCollisionEnabled ? "Barreira ON" : "Barreira OFF"}
+          </button>
         </div>
       )}
 
