@@ -341,24 +341,22 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     scene.add(points);
   }, [stars, width, height]);
 
-  // Animation loop with adaptive timing
+  // Animation loop with unlimited FPS for high refresh rate displays
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-    let lastFrameTime = 0;
-    const targetFrameTime = 0; // FPS uncapped for all devices
-
     const animate = (currentTime: number) => {
-      // FPS uncapped - no frame rate limiting for any device
+      // COMPLETELY UNCAPPED FPS - supports 120Hz, 144Hz, 240Hz+ displays
+      // No frame rate limiting whatsoever for maximum performance
 
-      // Update uniforms
+      // Update uniforms for shader animation
       if (materialRef.current) {
         materialRef.current.uniforms.time.value = currentTime;
         materialRef.current.uniforms.cameraX.value = cameraX;
         materialRef.current.uniforms.cameraY.value = cameraY;
       }
 
-      // Render frame synchronized with monitor refresh rate
+      // Render at maximum possible refresh rate
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
@@ -370,7 +368,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, [cameraX, cameraY, isMobile]);
+  }, [cameraX, cameraY]);
 
   // Update camera when dimensions change
   useEffect(() => {
