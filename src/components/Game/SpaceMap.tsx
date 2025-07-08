@@ -111,7 +111,7 @@ interface GameState {
   };
 }
 
-const WORLD_SIZE = 15000;
+const WORLD_SIZE = 100000;
 const SHIP_MAX_SPEED = 2;
 const FRICTION = 0.88;
 const CENTER_X = WORLD_SIZE / 2;
@@ -855,28 +855,55 @@ const SpaceMapComponent: React.FC = () => {
   // Generate optimized star field with reduced star count for better performance
   const generateRichStarField = useCallback(() => {
     const stars: Star[] = [];
-    const starColors = [
-      "#ffffff",
-      "#ffe4b5",
-      "#ffd700",
-      "#ffeb3b",
-      "#fff8e1", // Warm whites and yellows
-      "#87ceeb",
-      "#b0e0e6",
-      "#add8e6",
-      "#e1f5fe",
-      "#f3e5f5", // Cool blues and whites
-      "#ff69b4",
-      "#ffb6c1",
-      "#ffc0cb",
-      "#ffe4e1", // Pinks
-      "#98fb98",
-      "#90ee90",
-      "#f0fff0", // Greens
-      "#dda0dd",
-      "#e6e6fa",
-      "#f8f8ff", // Purples
-    ];
+
+    // Generate infinite color tonalities for stars
+    const generateRandomStarColor = () => {
+      const colors = [
+        // Greens
+        "#90EE90",
+        "#98FB98",
+        "#00FF7F",
+        "#32CD32",
+        "#00FA9A",
+        "#7CFC00",
+        // Purples
+        "#DA70D6",
+        "#BA55D3",
+        "#9370DB",
+        "#8A2BE2",
+        "#9932CC",
+        "#DDA0DD",
+        // Pinks
+        "#FF69B4",
+        "#FFB6C1",
+        "#FFC0CB",
+        "#FF1493",
+        "#FF6347",
+        "#FFE4E1",
+        // Reds
+        "#FF6B6B",
+        "#FF4444",
+        "#FF7F7F",
+        "#FF5555",
+        "#FF8888",
+        "#FFA0A0",
+        // Oranges
+        "#FFA500",
+        "#FF8C00",
+        "#FFB347",
+        "#FF7F50",
+        "#FFA07A",
+        "#FFAB91",
+        // Blues
+        "#87CEEB",
+        "#87CEFA",
+        "#4169E1",
+        "#6495ED",
+        "#00BFFF",
+        "#1E90FF",
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    };
 
     // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Aumentado para mais estrelas
     for (let i = 0; i < 4000; i++) {
@@ -892,10 +919,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.015 + 0.005,
         parallax: 0.3, // Camada mais distante
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
           x: 0, // Movimento será calculado via seno/cosseno
@@ -927,10 +951,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.018 + 0.007,
         parallax: 0.6, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -962,10 +983,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.022 + 0.009,
         parallax: 1.0, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.15 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -997,10 +1015,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.025 + 0.012,
         parallax: 1.4, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.2 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -1032,10 +1047,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.01 + 0.005, // Velocidade reduzida
         parallax: 1.8, // Paralaxe de primeiro plano
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.15 ? "bright" : "normal", // Menos estrelas giant
         drift: {
           x: 0,
@@ -1067,10 +1079,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.008 + 0.003, // Muito lento
         parallax: 2.2, // Máximo paralaxe
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal", // Principalmente normais
         drift: {
           x: 0,
@@ -1102,10 +1111,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.012 + 0.004,
         parallax: 0.8, // Between layers 1 and 2
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
           x: 0,
@@ -1137,10 +1143,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.02 + 0.01,
         parallax: 1.2,
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.7
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type:
           Math.random() < 0.4
             ? "bright"

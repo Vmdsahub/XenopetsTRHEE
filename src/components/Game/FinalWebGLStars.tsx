@@ -147,10 +147,10 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
 
       // Properties
       let sizeMult = 1;
-      if (star.type === "giant") sizeMult = 2.5;
-      else if (star.type === "bright") sizeMult = 1.8;
+      if (star.type === "giant") sizeMult = 3.2;
+      else if (star.type === "bright") sizeMult = 2.4;
 
-      sizes[i] = star.size * sizeMult * 2.5; // Bigger stars
+      sizes[i] = star.size * sizeMult * 3.5; // Bigger stars to prevent flickering
       parallaxValues[i] = star.parallax;
       opacities[i] = star.opacity;
       basePositionsX[i] = star.baseX;
@@ -279,7 +279,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
           vOpacity = opacity;
           vTwinkle = 1.0;
 
-          gl_PointSize = size;
+          gl_PointSize = size * 1.4;
         }
       `,
       fragmentShader: `
@@ -383,12 +383,12 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         pointerEvents: "none",
         zIndex: 0,
         background: `
-          radial-gradient(ellipse at 20% 30%, rgba(70, 50, 120, 0.4) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 20%, rgba(60, 100, 150, 0.3) 0%, transparent 50%),
-          radial-gradient(ellipse at 40% 80%, rgba(80, 60, 140, 0.3) 0%, transparent 50%),
-          radial-gradient(ellipse at 70% 70%, rgba(40, 80, 120, 0.2) 0%, transparent 50%),
-          linear-gradient(135deg, #1a1f3e 0%, #0f1628 40%, #0a0f1e 70%, #050810 100%)
-        `, // Beautiful galaxy background with nebula effects
+          radial-gradient(ellipse at 20% 30%, rgba(50, 80, 150, 0.4) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 20%, rgba(70, 120, 180, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 40% 80%, rgba(60, 100, 160, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 70%, rgba(40, 90, 140, 0.2) 0%, transparent 50%),
+          linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
+        `, // Beautiful galaxy background with blue nebula effects
       }}
     />
   );
