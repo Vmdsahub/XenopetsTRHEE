@@ -172,19 +172,23 @@ export const MobileOptimizedWebGLStars: React.FC<
     scene.add(points);
   }, [stars, cameraX, cameraY, width, height]);
 
-  // Simplified animation loop with frame rate limiting
+  // Optimized animation loop with conservative frame timing for mobile
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
+    // More conservative frame limiting for mobile WebGL
+    const targetFPS = 30; // Fixed 30 FPS for mobile stability
+    const frameInterval = 1000 / targetFPS;
+
     const animate = (currentTime: number) => {
-      // Limit to 30 FPS on mobile for better performance
-      if (currentTime - lastFrameTime.current < 33.33) {
+      // Strict frame limiting for mobile performance and battery life
+      if (currentTime - lastFrameTime.current < frameInterval) {
         animationIdRef.current = requestAnimationFrame(animate);
         return;
       }
       lastFrameTime.current = currentTime;
 
-      // Simple render without complex updates
+      // Render frame at consistent 30 FPS regardless of display refresh rate
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
