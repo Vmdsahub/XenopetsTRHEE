@@ -18,6 +18,11 @@ html {
 body {
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeSpeed;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Canvas specific optimizations - force GPU acceleration */
