@@ -193,6 +193,135 @@ export const AdminPanel: React.FC = () => {
     { id: "achievements", name: "Conquistas", icon: Trophy, count: 0 },
   ];
 
+  const renderWorldsTab = () => (
+    <div className="space-y-6">
+      {/* Header with Reset Button */}
+      <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Gerenciamento de Mundos
+            </h3>
+            <p className="text-gray-600">
+              Gerencie posições e configurações dos mundos
+            </p>
+          </div>
+          <motion.button
+            onClick={handleResetWorldPositions}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-all font-semibold shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span>Resetar Posições</span>
+          </motion.button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <p className="text-2xl font-bold text-blue-800">
+              {worldPositions.length}
+            </p>
+            <p className="text-xs text-blue-600">Total de Mundos</p>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-xl border border-green-200">
+            <p className="text-2xl font-bold text-green-800">50,000</p>
+            <p className="text-xs text-green-600">Posição Central</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Worlds List */}
+      <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+        <h4 className="text-lg font-bold text-gray-900 mb-4">Mundos Atuais</h4>
+
+        {worldPositions.length === 0 ? (
+          <div className="text-center py-8">
+            <Globe className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600">Nenhum mundo configurado ainda.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {worldPositions.map((world, index) => (
+              <motion.div
+                key={world.id}
+                className="p-4 rounded-2xl border-2 border-gray-300 bg-gray-50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h5 className="font-bold text-gray-900">{world.name}</h5>
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        {world.id}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Position Info */}
+                <div className="mb-3">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Posição:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+                      X: {Math.round(world.x)}
+                    </span>
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+                      Y: {Math.round(world.y)}
+                    </span>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                      Tamanho: {world.size}
+                    </span>
+                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                      Raio: {world.interactionRadius}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Distance from center */}
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>
+                    Distância do centro:{" "}
+                    {Math.round(
+                      Math.sqrt(
+                        Math.pow(world.x - 50000, 2) +
+                          Math.pow(world.y - 50000, 2),
+                      ),
+                    )}{" "}
+                    pixels
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-blue-50 rounded-3xl p-6 border border-blue-200">
+        <h4 className="text-lg font-bold text-blue-900 mb-3">
+          ℹ️ Informações sobre Posicionamento
+        </h4>
+        <div className="text-blue-800 text-sm space-y-2">
+          <p>• O centro do mapa galáctico está em (50.000, 50.000)</p>
+          <p>
+            • Os mundos devem estar próximos ao centro para facilitar a
+            navegação
+          </p>
+          <p>
+            • Use o botão "Resetar Posições" para centralizar todos os mundos
+          </p>
+          <p>• A barreira tracejada também está centralizada nesta posição</p>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderCodesTab = () => (
     <div className="space-y-6">
       {/* Header with Create Button */}
