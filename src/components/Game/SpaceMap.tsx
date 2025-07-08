@@ -855,28 +855,14 @@ const SpaceMapComponent: React.FC = () => {
   // Generate optimized star field with reduced star count for better performance
   const generateRichStarField = useCallback(() => {
     const stars: Star[] = [];
-    const starColors = [
-      "#ffffff",
-      "#ffe4b5",
-      "#ffd700",
-      "#ffeb3b",
-      "#fff8e1", // Warm whites and yellows
-      "#87ceeb",
-      "#b0e0e6",
-      "#add8e6",
-      "#e1f5fe",
-      "#f3e5f5", // Cool blues and whites
-      "#ff69b4",
-      "#ffb6c1",
-      "#ffc0cb",
-      "#ffe4e1", // Pinks
-      "#98fb98",
-      "#90ee90",
-      "#f0fff0", // Greens
-      "#dda0dd",
-      "#e6e6fa",
-      "#f8f8ff", // Purples
-    ];
+
+    // Generate infinite color tonalities for stars
+    const generateRandomStarColor = () => {
+      const hue = Math.random() * 360; // 0-360 degrees
+      const saturation = 30 + Math.random() * 70; // 30-100% saturation
+      const lightness = 50 + Math.random() * 40; // 50-90% lightness for visible stars
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    };
 
     // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Aumentado para mais estrelas
     for (let i = 0; i < 4000; i++) {
