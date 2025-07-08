@@ -279,7 +279,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
           vOpacity = opacity;
           vTwinkle = 1.0;
 
-          gl_PointSize = size;
+          gl_PointSize = size * 1.4;
         }
       `,
       fragmentShader: `
