@@ -175,6 +175,11 @@ const SpaceMapComponent: React.FC = () => {
       (window.innerWidth <= 768 && window.devicePixelRatio > 1)
     );
   }, []);
+
+  // Mobile frame rate limiting
+  const targetFrameTime = isMobile ? 1000 / 45 : 0; // 45 FPS cap on mobile, unlimited on desktop
+  const lastFrameTimeForMobile = useRef(0);
+
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
