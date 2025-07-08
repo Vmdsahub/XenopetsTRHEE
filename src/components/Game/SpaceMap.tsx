@@ -2821,9 +2821,23 @@ const SpaceMapComponent: React.FC = () => {
       />
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
+
+      {/* WebGL Star Field */}
+      {canvasRef.current && (
+        <WebGLStarField
+          stars={starsRef.current}
+          cameraX={gameState.camera.x}
+          cameraY={gameState.camera.y}
+          width={canvasRef.current.offsetWidth}
+          height={canvasRef.current.offsetHeight}
+          className="absolute inset-0 pointer-events-none z-0"
+        />
+      )}
+
       <canvas
         ref={canvasRef}
         className="w-full h-full game-canvas gpu-accelerated hardware-canvas force-gpu-layer"
+        style={{ position: "relative", zIndex: 1 }}
         style={{
           cursor:
             user?.isAdmin && isWorldEditMode
