@@ -58,27 +58,55 @@ export const MobileOptimizedWebGLStars: React.FC<
     );
     camera.position.z = 1;
 
-    // Renderer setup - heavily optimized for mobile
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: false,
-      powerPreference: "default", // Don't force high-performance on mobile
-      precision: "lowp", // Low precision for mobile
-      stencil: false,
-      depth: false,
-      premultipliedAlpha: true,
-    });
+    // Renderer setup - optimized for mobile with better compatibility
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance", // Use high-performance for 120Hz support
+        precision: "mediump", // Better precision for mobile
+        stencil: false,
+        depth: false,
+        premultipliedAlpha: true,
+        preserveDrawingBuffer: false, // Better for mobile
+        failIfMajorPerformanceCaveat: false, // Don't fail on mobile
+      });
 
-    // Very conservative settings for mobile
+      // Debug WebGL context
+      const gl = renderer.getContext();
+      console.log(`WebGL context created successfully on mobile:`, {
+        version: gl.getParameter(gl.VERSION),
+        vendor: gl.getParameter(gl.VENDOR),
+        renderer: gl.getParameter(gl.RENDERER),
+        maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+        supportedExtensions: gl.getSupportedExtensions?.()?.length || 0,
+      });
+    } catch (error) {
+      console.error("Failed to create WebGL context on mobile:", error);
+      return;
+    }
+
+    // Better mobile settings that preserve 120Hz capability
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); // Even more conservative
+    // Support full device pixel ratio for crisp rendering on high-DPI displays
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
     renderer.setClearColor(0x000000, 0);
 
-    // Disable expensive features
+    // Disable expensive features but keep essential ones
     renderer.shadowMap.enabled = false;
     renderer.sortObjects = false;
 
-    mountRef.current.appendChild(renderer.domElement);
+    // Ensure canvas is properly styled for mobile
+    const canvas = renderer.domElement;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.style.display = "block";
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+
+    mountRef.current.appendChild(canvas);
 
     // Store references
     sceneRef.current = scene;
@@ -89,8 +117,8 @@ export const MobileOptimizedWebGLStars: React.FC<
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && canvas.parentNode === mountRef.current) {
+        mountRef.current.removeChild(canvas);
       }
       renderer.dispose();
     };
@@ -127,42 +155,58 @@ export const MobileOptimizedWebGLStars: React.FC<
     const sizes = new Float32Array(sampledStars.length);
 
     sampledStars.forEach((star, i) => {
-      // Simple static positions (no complex animations on mobile)
-      const screenX = (star.x - cameraX) * star.parallax + width / 2;
-      const screenY = (star.y - cameraY) * star.parallax + height / 2;
+      // Fixed positioning calculation for mobile
+      const parallaxX = (star.x - cameraX) * star.parallax;
+      const parallaxY = (star.y - cameraY) * star.parallax;
 
-      positions[i * 3] = screenX - width / 2;
-      positions[i * 3 + 1] = height / 2 - screenY;
+      // Convert to screen coordinates properly
+      positions[i * 3] = parallaxX;
+      positions[i * 3 + 1] = parallaxY;
       positions[i * 3 + 2] = 0;
 
-      // Simplified colors (only white and blue)
-      if (star.color === "#ffffff" || Math.random() > 0.8) {
-        colors[i * 3] = 1;
-        colors[i * 3 + 1] = 1;
-        colors[i * 3 + 2] = 1;
+      // Better color handling with proper hex color parsing
+      const color = star.color || "#ffffff";
+      if (
+        color === "#ffffff" ||
+        star.type === "bright" ||
+        star.type === "giant"
+      ) {
+        colors[i * 3] = 1.0; // R
+        colors[i * 3 + 1] = 1.0; // G
+        colors[i * 3 + 2] = 1.0; // B
+      } else if (color === "#4fc3f7" || color.includes("blue")) {
+        colors[i * 3] = 0.31; // R
+        colors[i * 3 + 1] = 0.76; // G
+        colors[i * 3 + 2] = 0.97; // B
       } else {
-        colors[i * 3] = 0.7;
-        colors[i * 3 + 1] = 0.8;
-        colors[i * 3 + 2] = 1;
+        colors[i * 3] = 0.8; // R
+        colors[i * 3 + 1] = 0.9; // G
+        colors[i * 3 + 2] = 1.0; // B
       }
 
-      // Smaller, simpler sizes
-      sizes[i] = Math.max(1, star.size * 1.5);
+      // Larger, more visible sizes for mobile
+      let sizeMultiplier = 1.0;
+      if (star.type === "giant") sizeMultiplier = 4.0;
+      else if (star.type === "bright") sizeMultiplier = 2.5;
+      else sizeMultiplier = 1.5;
+
+      sizes[i] = Math.max(2.0, star.size * sizeMultiplier * 2.0); // Make stars bigger on mobile
     });
 
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Use simple point material instead of shaders
+    // Use optimized point material for mobile with better visibility
     const material = new THREE.PointsMaterial({
-      size: 2,
+      size: 4.0, // Larger base size for mobile visibility
       vertexColors: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 1.0, // Full opacity for better visibility
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-      sizeAttenuation: false, // Disable size attenuation for performance
+      sizeAttenuation: true, // Enable size attenuation for better depth perception
+      alphaTest: 0.1, // Prevent tiny fragments
     });
 
     // Create points
@@ -170,21 +214,47 @@ export const MobileOptimizedWebGLStars: React.FC<
     pointsRef.current = points;
     materialRef.current = material;
     scene.add(points);
+
+    // Debug logging for mobile
+    console.log(
+      `Mobile WebGL Stars: Created ${sampledStars.length} stars from ${stars.length} total stars`,
+    );
+    console.log(
+      `Canvas size: ${width}x${height}, Device pixel ratio: ${window.devicePixelRatio}`,
+    );
   }, [stars, cameraX, cameraY, width, height]);
 
-  // Optimized animation loop with conservative frame timing for mobile
+  // Optimized animation loop with unlimited FPS for 120Hz+ mobile displays
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-    // FPS uncapped for mobile WebGL - maximum performance
-    const targetFPS = 0; // Unlimited FPS for mobile
-    const frameInterval = 0;
-
     const animate = (currentTime: number) => {
-      // FPS uncapped - no frame rate limiting for mobile devices
-      lastFrameTime.current = currentTime;
+      // FPS completely uncapped - supports full 120Hz on iPhone 16 Pro Max
+      // No frame limiting whatsoever for maximum performance and refresh rate
 
-      // Render frame at maximum possible FPS
+      // Update positions for camera movement
+      if (pointsRef.current && pointsRef.current.geometry) {
+        const positions = pointsRef.current.geometry.attributes.position
+          .array as Float32Array;
+        const originalStars =
+          stars.length > 3000
+            ? stars
+                .filter((_, i) => i % Math.ceil(stars.length / 3000) === 0)
+                .slice(0, 3000)
+            : stars;
+
+        originalStars.forEach((star, i) => {
+          const parallaxX = (star.x - cameraX) * star.parallax;
+          const parallaxY = (star.y - cameraY) * star.parallax;
+
+          positions[i * 3] = parallaxX;
+          positions[i * 3 + 1] = parallaxY;
+        });
+
+        pointsRef.current.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // Render at maximum refresh rate (uncapped)
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
@@ -196,7 +266,7 @@ export const MobileOptimizedWebGLStars: React.FC<
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, []);
+  }, [stars, cameraX, cameraY]);
 
   // Update camera when dimensions change
   useEffect(() => {
@@ -213,21 +283,44 @@ export const MobileOptimizedWebGLStars: React.FC<
   }, [width, height]);
 
   return (
-    <div
-      ref={mountRef}
-      className={className}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: width + "px",
-        height: height + "px",
-        pointerEvents: "none",
-        zIndex: 0,
-        background: `
-          linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
-        `, // Simplified background for mobile
-      }}
-    />
+    <>
+      <div
+        ref={mountRef}
+        className={className}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: width + "px",
+          height: height + "px",
+          pointerEvents: "none",
+          zIndex: 0,
+          backgroundColor: "transparent", // Transparent background to show stars
+          overflow: "hidden", // Ensure content doesn't overflow
+        }}
+      />
+      {/* Debug info overlay for mobile */}
+      {process.env.NODE_ENV === "development" && (
+        <div
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            background: "rgba(0,0,0,0.8)",
+            color: "white",
+            padding: "5px",
+            fontSize: "10px",
+            zIndex: 1000,
+            pointerEvents: "none",
+          }}
+        >
+          Mobile Stars: {stars.length} → {Math.min(stars.length, 3000)}
+          <br />
+          Canvas: {width}×{height}
+          <br />
+          DPR: {window.devicePixelRatio}
+        </div>
+      )}
+    </>
   );
 };
