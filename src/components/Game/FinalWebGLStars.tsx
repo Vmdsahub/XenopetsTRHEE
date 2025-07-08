@@ -247,23 +247,16 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         void main() {
           vColor = color;
 
-          // Calculate floating motion
-          float timeOffset = time * 0.0008;
-          float baseSpeed = 0.8 + speed * 0.4;
-          float primaryTime = timeOffset * baseSpeed;
-          float secondaryTime = timeOffset * baseSpeed * 0.6;
-
-          float floatX = sin(primaryTime + floatPhaseX) * floatAmplitudeX * 0.6 +
-                        sin(secondaryTime * 0.7 + floatPhaseX * 1.3) * floatAmplitudeX * 0.3;
-
-          float floatY = cos(primaryTime * 0.8 + floatPhaseY) * floatAmplitudeY * 0.6 +
-                        cos(secondaryTime * 0.6 + floatPhaseY * 1.2) * floatAmplitudeY * 0.3;
+          // Simplified floating motion to prevent disappearing
+          float timeOffset = time * 0.0005;
+          float floatX = sin(timeOffset + floatPhaseX) * floatAmplitudeX * 0.3;
+          float floatY = cos(timeOffset + floatPhaseY) * floatAmplitudeY * 0.3;
 
           // Calculate star world position
           float starX = normalizeCoord(basePositionX + floatX);
           float starY = normalizeCoord(basePositionY + floatY);
 
-          // Apply parallax
+          // Apply parallax (simplified)
           float wrappedDeltaX = getWrappedDistance(starX, cameraX);
           float wrappedDeltaY = getWrappedDistance(starY, cameraY);
 
@@ -272,6 +265,10 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
 
           float screenX = centerX + parallaxX;
           float screenY = centerY + parallaxY;
+
+          // Ensure stars stay visible - clamp to reasonable bounds
+          screenX = clamp(screenX, -centerX * 2.0, centerX * 3.0);
+          screenY = clamp(screenY, -centerY * 2.0, centerY * 3.0);
 
           // Convert to world space (relative to center)
           vec3 worldPos = vec3(screenX - centerX, centerY - screenY, 0.0);
