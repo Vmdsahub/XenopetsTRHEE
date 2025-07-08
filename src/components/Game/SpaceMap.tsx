@@ -13,6 +13,7 @@ import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { gameService } from "../../services/gameService";
 import { FinalWebGLStars } from "./FinalWebGLStars";
+import { MobileOptimizedWebGLStars } from "./MobileOptimizedWebGLStars";
 import {
   playLaserShootSound,
   playLandingSound,
@@ -3075,7 +3076,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ����rea de Pouso:{" "}
+              �����rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
