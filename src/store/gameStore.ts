@@ -1838,12 +1838,6 @@ export const useGameStore = create<GameStore>()(
         set({ worldPositions: defaultPositions });
       },
 
-      resetWorldPositions: () => {
-        console.log("📍 Resetting world positions to defaults");
-        set({ worldPositions: [] });
-        get().loadWorldPositions();
-      },
-
       subscribeToWorldPositions: () => {
         // No need for real-time subscriptions with localStorage
         console.log(
