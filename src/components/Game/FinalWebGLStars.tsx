@@ -147,10 +147,10 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
 
       // Properties
       let sizeMult = 1;
-      if (star.type === "giant") sizeMult = 2.5;
-      else if (star.type === "bright") sizeMult = 1.8;
+      if (star.type === "giant") sizeMult = 3.2;
+      else if (star.type === "bright") sizeMult = 2.4;
 
-      sizes[i] = star.size * sizeMult * 2.5; // Bigger stars
+      sizes[i] = star.size * sizeMult * 3.5; // Bigger stars to prevent flickering
       parallaxValues[i] = star.parallax;
       opacities[i] = star.opacity;
       basePositionsX[i] = star.baseX;
