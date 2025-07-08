@@ -1778,7 +1778,17 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
-      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
+      // Mobile frame rate limiting
+      if (isMobile && targetFrameTime > 0) {
+        const timeSinceLastFrame = currentTime - lastFrameTimeForMobile.current;
+        if (timeSinceLastFrame < targetFrameTime) {
+          gameLoopRef.current = requestAnimationFrame(gameLoop);
+          return;
+        }
+        lastFrameTimeForMobile.current = currentTime;
+      }
+
+      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação para desktop
 
       // Intelligent frame skipping for large canvas - skip non-critical updates
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
@@ -3201,7 +3211,8 @@ const SpaceMapComponent: React.FC = () => {
             </div>
             <div>�� 1º Click: Selecionar mundo</div>
             <div>
-              • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
+              • 2�� Click:{" "}
+              {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
             <div>• ESC: Cancelar</div>
             <div>• Painel: Tamanho/Rotação</div>
