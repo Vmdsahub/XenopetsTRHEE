@@ -181,15 +181,16 @@ export const MobileOptimizedWebGLStars: React.FC<
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Use simple point material instead of shaders
+    // Use optimized point material for mobile with better visibility
     const material = new THREE.PointsMaterial({
-      size: 2,
+      size: 4.0, // Larger base size for mobile visibility
       vertexColors: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 1.0, // Full opacity for better visibility
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-      sizeAttenuation: false, // Disable size attenuation for performance
+      sizeAttenuation: true, // Enable size attenuation for better depth perception
+      alphaTest: 0.1, // Prevent tiny fragments
     });
 
     // Create points
