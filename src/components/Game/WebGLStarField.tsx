@@ -438,8 +438,6 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
         height: height + "px",
         pointerEvents: "none",
         zIndex: 0,
-        border: "1px solid red", // Debug border
-        backgroundColor: "rgba(255, 0, 0, 0.1)", // Debug background
       }}
     />
   );
