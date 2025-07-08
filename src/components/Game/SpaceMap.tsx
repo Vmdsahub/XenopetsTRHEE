@@ -2823,10 +2823,14 @@ const SpaceMapComponent: React.FC = () => {
         <div className="absolute top-2 right-2 space-y-2 gpu-ui-overlay">
           <button
             onClick={() => {
-              setWorldEditMode(!isWorldEditMode);
-              if (isWorldEditMode) {
-                setSelectedWorldId(null);
-                setIsDragging(false);
+              try {
+                setWorldEditMode(!isWorldEditMode);
+                if (isWorldEditMode) {
+                  setSelectedWorldId(null);
+                  setIsDragging(false);
+                }
+              } catch (error) {
+                console.error("Error toggling world edit mode:", error);
               }
             }}
             className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
