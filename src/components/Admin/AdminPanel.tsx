@@ -280,13 +280,8 @@ export const AdminPanel: React.FC = () => {
         </h4>
         <div className="text-blue-800 text-sm space-y-2">
           <p>• O centro do mapa galáctico está em (50.000, 50.000)</p>
-          <p>
-            • Os mundos devem estar próximos ao centro para facilitar a
-            navegação
-          </p>
-          <p>
-            • Use o botão "Resetar Posições" para centralizar todos os mundos
-          </p>
+          <p>• Os mundos estão próximos ao centro para facilitar a navegação</p>
+          <p>• Use o modo "Editar Mundos" no mapa para ajustar posições</p>
           <p>• A barreira tracejada também está centralizada nesta posição</p>
         </div>
       </div>
