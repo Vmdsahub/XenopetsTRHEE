@@ -83,30 +83,24 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); // Mais conserva
 - **Animações Reduzidas**: Remove animações complexas de floating
 - **Sampling**: Amostra apenas um subconjunto das estrelas
 
-## 🎯 Limitação de Frame Rate
+## 🎯 Frame Rate Desbloqueado
 
 ### Frame Rate Targeting
 
 ```typescript
-// 45 FPS cap para mobile, ilimitado para desktop
-const targetFrameTime = isMobile ? 1000 / 45 : 0;
+// FPS desbloqueado para todos os dispositivos
+const targetFrameTime = 0; // Unlimited FPS for both mobile and desktop
 
-// No game loop
-if (isMobile && targetFrameTime > 0) {
-  const timeSinceLastFrame = currentTime - lastFrameTimeForMobile.current;
-  if (timeSinceLastFrame < targetFrameTime) {
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
-    return; // Skip frame
-  }
-}
+// No game loop - sem limitação de frames
+// FPS uncapped - no frame rate limiting for any device
 ```
 
 ### Benefícios
 
-- **Estabilidade**: FPS mais consistente em dispositivos móveis
-- **Economia de Bateria**: Menos renderização = menos consumo
-- **Temperatura**: Reduz aquecimento do dispositivo
-- **Performance**: CPU/GPU não sobrecarregados
+- **Performance Máxima**: Aproveita toda capacidade do hardware móvel
+- **Displays High Refresh**: Suporte completo para telas 90Hz+, 120Hz+, 144Hz+
+- **Responsividade**: Input lag mínimo em dispositivos móveis
+- **Escalabilidade**: Automaticamente aproveita dispositivos mais potentes
 
 ## ✨ Otimizações de Efeitos
 
@@ -201,7 +195,7 @@ FPS: {
 - **Android**: Android 7+ com GPU Adreno/Mali/PowerVR
 - **Minimum RAM**: 2GB recomendado
 
-## 🚫 Limitação de 60 FPS Removida
+## 🚫 Limitação de FPS Completamente Removida
 
 ### Desktop
 
@@ -210,8 +204,9 @@ FPS: {
 
 ### Mobile
 
-- **FPS**: Limitado a 45 FPS para estabilidade
-- **Razão**: Previne overheating e melhora consistência
+- **FPS**: Completamente desbloqueado
+- **Suporte**: 90Hz+, 120Hz+, 144Hz+ displays móveis
+- **Performance**: Máximo aproveitamento do hardware móvel
 
 ## 🎯 Próximas Otimizações Possíveis
 

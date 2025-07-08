@@ -57,18 +57,14 @@ const gameLoop = (currentTime: number) => {
 };
 ```
 
-#### Mobile - Conservador e Estável
+#### Mobile - FPS Desbloqueado
 
 ```typescript
-// Limita a 45 FPS independente da taxa da tela
-const targetFrameTime = 1000 / 45; // ~22ms entre frames
+// FPS desbloqueado para aproveitamento máximo
+const targetFrameTime = 0; // Unlimited FPS
 
 const gameLoop = (currentTime: number) => {
-  if (currentTime - lastFrameTime < targetFrameTime) {
-    requestAnimationFrame(gameLoop);
-    return; // Skip frame
-  }
-
+  // Sem limitação de frames - máximo desempenho
   updateGame(deltaTime);
   render();
   requestAnimationFrame(gameLoop);
@@ -143,16 +139,12 @@ const animate = (currentTime: number) => {
 ### Mobile WebGL
 
 ```typescript
-// Limitado a 30 FPS para estabilidade
-const targetFrameTime = 1000 / 30;
+// FPS desbloqueado para aproveitamento máximo
+const targetFrameTime = 0;
 
 const animate = (currentTime: number) => {
-  if (currentTime - lastFrameTime < targetFrameTime) {
-    requestAnimationFrame(animate);
-    return;
-  }
-
-  render(); // Apenas 30 FPS
+  // Sem limitação - máxima taxa de refresh
+  render(); // FPS máximo possível
   requestAnimationFrame(animate);
 };
 ```
@@ -175,10 +167,10 @@ const animate = (currentTime: number) => {
 
 ### Mobile (Qualquer)
 
-- **Refresh Rate**: Ignorado (força 45 FPS)
-- **Frame Limiting**: Agressivo
-- **Delta Time**: Capped para estabilidade
-- **WebGL**: Limitado a 30 FPS
+- **Refresh Rate**: Detectado e aproveitado completamente
+- **Frame Limiting**: Removido - FPS desbloqueado
+- **Delta Time**: Preciso e desbloqueado
+- **WebGL**: FPS máximo possível
 
 ## 🔍 Monitoramento e Debug
 

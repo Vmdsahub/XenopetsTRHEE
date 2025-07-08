@@ -177,8 +177,8 @@ const SpaceMapComponent: React.FC = () => {
     );
   }, []);
 
-  // Adaptive frame rate management
-  const targetFrameTime = isMobile ? 1000 / 45 : 0; // 45 FPS cap on mobile, unlimited on desktop
+  // Adaptive frame rate management - FPS uncapped for all devices
+  const targetFrameTime = 0; // Unlimited FPS for both mobile and desktop
   const lastFrameTimeForMobile = useRef(0);
   const refreshRateRef = useRef(60); // Default to 60Hz
   const frameTimeHistoryRef = useRef<number[]>([]);
@@ -1827,15 +1827,7 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Mobile frame rate limiting
-      if (isMobile && targetFrameTime > 0) {
-        const timeSinceLastFrame = currentTime - lastFrameTimeForMobile.current;
-        if (timeSinceLastFrame < targetFrameTime) {
-          gameLoopRef.current = requestAnimationFrame(gameLoop);
-          return;
-        }
-        lastFrameTimeForMobile.current = currentTime;
-      }
+      // FPS uncapped - no frame rate limiting for any device
 
       // Calculate delta time with safeguards for high refresh rates
       const rawDeltaTime = currentTime - lastTime;
