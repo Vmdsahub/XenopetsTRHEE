@@ -3121,7 +3121,7 @@ const SpaceMapComponent: React.FC = () => {
                   setIsDragging(false);
                   setDragOffset({ x: 0, y: 0 });
                 }}
-                className="flex-1 px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200"
+                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 active:bg-blue-300"
               >
                 Confirmar
               </button>
