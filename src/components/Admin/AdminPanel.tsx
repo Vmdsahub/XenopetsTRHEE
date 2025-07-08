@@ -164,6 +164,22 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
+  const handleResetWorldPositions = () => {
+    if (
+      confirm(
+        "Tem certeza que deseja resetar todas as posições dos mundos para os valores padrão? Esta ação não pode ser desfeita.",
+      )
+    ) {
+      resetWorldPositions();
+      addNotification({
+        type: "success",
+        title: "Sucesso!",
+        message:
+          "Posições dos mundos resetadas para os valores centrais padrão.",
+      });
+    }
+  };
+
   const tabs = [
     {
       id: "codes",
