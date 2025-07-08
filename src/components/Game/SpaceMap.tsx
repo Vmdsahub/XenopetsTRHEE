@@ -2554,7 +2554,8 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points during landing animation (moved outside the progress check)
       if (isLandingAnimationActive && landingAnimationData) {
         const currentTime = performance.now();
-        if (currentTime - lastTrailTime.current > 35) {
+        const trailUpdateInterval = isMobile ? 70 : 35; // Less frequent on mobile
+        if (currentTime - lastTrailTime.current > trailUpdateInterval) {
           const elapsed = currentTime - landingAnimationData.startTime;
           const progress = Math.min(elapsed / landingAnimationData.duration, 1);
 
