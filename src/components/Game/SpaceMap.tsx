@@ -165,6 +165,16 @@ const SpaceMapComponent: React.FC = () => {
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
+
+  // Mobile device detection for performance optimization
+  const isMobile = useMemo(() => {
+    return (
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ) ||
+      (window.innerWidth <= 768 && window.devicePixelRatio > 1)
+    );
+  }, []);
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -907,8 +917,9 @@ const SpaceMapComponent: React.FC = () => {
       return colors[Math.floor(Math.random() * colors.length)];
     };
 
-    // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 4000; i++) {
+    // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Reduced for mobile
+    const layer1Count = isMobile ? 1200 : 4000;
+    for (let i = 0; i < layer1Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -939,8 +950,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 2: Mid background (parallax 0.6) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 3500; i++) {
+    // Layer 2: Mid background (parallax 0.6) - ABAIXO do jogador - Reduced for mobile
+    const layer2Count = isMobile ? 1000 : 3500;
+    for (let i = 0; i < layer2Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
