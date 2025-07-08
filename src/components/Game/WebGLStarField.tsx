@@ -258,85 +258,91 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
           attribute float basePositionX;
           attribute float basePositionY;
           attribute float speed;
-          
+
           uniform float time;
           uniform float cameraX;
           uniform float cameraY;
           uniform float worldSize;
           uniform float centerX;
           uniform float centerY;
-          
+
           varying vec3 vColor;
           varying float vOpacity;
           varying float vTwinkle;
-          
+
+          float normalizeCoord(float coord) {
+            return mod(coord + worldSize * 0.5, worldSize) - worldSize * 0.5;
+          }
+
           float getWrappedDistance(float pos1, float pos2) {
             float delta = pos1 - pos2;
-            float wrappedDelta = mod(delta + worldSize * 0.5, worldSize) - worldSize * 0.5;
-            return wrappedDelta;
+            return mod(delta + worldSize * 0.5, worldSize) - worldSize * 0.5;
           }
-          
+
           void main() {
             vColor = color;
-            
-            // Calculate floating motion
+
+            // Calculate floating motion (same as original implementation)
             float timeOffset = time * 0.0008;
             float baseSpeed = 0.8 + speed * 0.4;
             float primaryTime = timeOffset * baseSpeed;
             float secondaryTime = timeOffset * baseSpeed * 0.6;
-            
+
             float floatX = sin(primaryTime + floatPhaseX) * floatAmplitudeX * 0.6 +
                           sin(secondaryTime * 0.7 + floatPhaseX * 1.3) * floatAmplitudeX * 0.3 +
                           sin(primaryTime * 0.3 + floatPhaseX * 0.8) * floatAmplitudeX * 0.1;
-                          
+
             float floatY = cos(primaryTime * 0.8 + floatPhaseY) * floatAmplitudeY * 0.6 +
                           cos(secondaryTime * 0.6 + floatPhaseY * 1.2) * floatAmplitudeY * 0.3 +
                           cos(primaryTime * 0.4 + floatPhaseY * 0.9) * floatAmplitudeY * 0.1;
-            
-            float starX = basePositionX + floatX;
-            float starY = basePositionY + floatY;
-            
-            // Apply parallax
+
+            // Normalize star position with floating motion
+            float starX = normalizeCoord(basePositionX + floatX);
+            float starY = normalizeCoord(basePositionY + floatY);
+
+            // Apply parallax effect (same as original implementation)
             float wrappedDeltaX = getWrappedDistance(starX, cameraX);
             float wrappedDeltaY = getWrappedDistance(starY, cameraY);
-            
+
             float parallaxX = wrappedDeltaX * parallax;
             float parallaxY = wrappedDeltaY * parallax;
-            
-            float screenX = centerX + parallaxX - centerX;
-            float screenY = centerY + parallaxY - centerY;
-            
-            // Convert to clip space
-            vec4 mvPosition = modelViewMatrix * vec4(screenX, screenY, 0.0, 1.0);
-            gl_Position = projectionMatrix * mvPosition;
-            
+
+            float screenX = centerX + parallaxX;
+            float screenY = centerY + parallaxY;
+
+            // Transform screen coordinates to normalized device coordinates for orthographic projection
+            float ndcX = (screenX - centerX) / centerX;
+            float ndcY = (centerY - screenY) / centerY; // Flip Y axis
+
+            gl_Position = vec4(ndcX, ndcY, 0.0, 1.0);
+
             // Calculate twinkling and pulsing
             float twinkleAlpha = sin(twinklePhase + time * speed * 0.4) * 0.3 + 0.7;
             float pulseSize = sin(pulsePhase + time * speed * 0.3) * 0.2 + 1.0;
-            
+
             vOpacity = opacity * twinkleAlpha;
             vTwinkle = twinkleAlpha;
-            
-            gl_PointSize = size * pulseSize;
+
+            gl_PointSize = size * pulseSize * 2.0; // Scale up for visibility
           }
         `,
         fragmentShader: `
           varying vec3 vColor;
           varying float vOpacity;
           varying float vTwinkle;
-          
+
           void main() {
             float distance = length(gl_PointCoord - vec2(0.5));
-            
+
             // Create star shape with smooth falloff
             float star = 1.0 - smoothstep(0.0, 0.5, distance);
-            
+
             // Add glow effect
             float glow = 1.0 - smoothstep(0.0, 0.8, distance);
             glow = pow(glow, 2.0);
-            
+
             float finalAlpha = (star * 0.8 + glow * 0.2) * vOpacity;
-            
+
             gl_FragColor = vec4(vColor, finalAlpha);
           }
         `,
