@@ -369,10 +369,6 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
     });
 
     starSystemsRef.current = starSystems;
-    console.log(
-      "WebGL Star Field: Star systems created:",
-      Object.keys(starSystems),
-    );
   }, [stars, width, height]);
 
   // Animation loop
