@@ -163,6 +163,10 @@ const SpaceMapComponent: React.FC = () => {
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
+  const [canvasDimensions, setCanvasDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   const lastRadarPulseTime = useRef<Map<string, number>>(new Map());
   const planetImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const shipImageRef = useRef<HTMLImageElement | null>(null);
