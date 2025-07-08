@@ -18,7 +18,6 @@ import {
   EyeOff,
   Calendar,
   Globe,
-  RotateCcw,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { RedeemCode } from "../../types/game";
