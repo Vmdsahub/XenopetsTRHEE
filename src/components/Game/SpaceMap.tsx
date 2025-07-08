@@ -2871,7 +2871,7 @@ const SpaceMapComponent: React.FC = () => {
         }}
       />
 
-      {/* Simple Admin Button for World Editing */}
+      {/* Admin Controls - Mobile Responsive */}
       {user?.isAdmin && (
         <div className="absolute top-2 right-2 space-y-2 z-50">
           <button
@@ -2888,12 +2888,12 @@ const SpaceMapComponent: React.FC = () => {
                 setIsDragging(false);
               }
             }}
-            className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+            className={`block w-full px-4 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
               isWorldEditMode
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-red-600 text-white hover:bg-red-700 active:bg-red-800"
+                : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
             }`}
-            style={{ pointerEvents: "auto" }}
+            style={{ pointerEvents: "auto", minWidth: "120px" }}
           >
             {isWorldEditMode ? "Sair Edição" : "Editar Mundos"}
           </button>
@@ -2904,12 +2904,12 @@ const SpaceMapComponent: React.FC = () => {
               e.stopPropagation();
               setBarrierCollisionEnabled(!isBarrierCollisionEnabled);
             }}
-            className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+            className={`block w-full px-4 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
               isBarrierCollisionEnabled
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-orange-600 text-white hover:bg-orange-700"
+                ? "bg-green-600 text-white hover:bg-green-700 active:bg-green-800"
+                : "bg-orange-600 text-white hover:bg-orange-700 active:bg-orange-800"
             }`}
-            style={{ pointerEvents: "auto" }}
+            style={{ pointerEvents: "auto", minWidth: "120px" }}
           >
             {isBarrierCollisionEnabled ? "🚧 Barreira ON" : "⚡ Barreira OFF"}
           </button>
