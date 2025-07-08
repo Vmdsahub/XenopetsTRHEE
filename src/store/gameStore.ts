@@ -657,6 +657,7 @@ export const useGameStore = create<GameStore>()(
       currentScreen: "pet",
       currentPlanet: null,
       isWorldEditMode: false,
+      isBarrierCollisionEnabled: true,
       achievements: [],
       collectibles: [],
       quests: [],
