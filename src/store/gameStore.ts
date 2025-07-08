@@ -762,6 +762,12 @@ export const useGameStore = create<GameStore>()(
         set({ isWorldEditMode: enabled });
       },
 
+      // Barrier collision toggle
+      setBarrierCollisionEnabled: (enabled) => {
+        console.log("🚧 Barrier collision:", enabled ? "enabled" : "disabled");
+        set({ isBarrierCollisionEnabled: enabled });
+      },
+
       // Egg selection and hatching actions
       setSelectedEggForHatching: (eggData) =>
         set({ selectedEggForHatching: eggData }),
