@@ -878,10 +878,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.015 + 0.005,
         parallax: 0.3, // Camada mais distante
         twinkle: Math.random() * 100,
-        color:
-          Math.random() < 0.8
-            ? "#ffffff"
-            : starColors[Math.floor(Math.random() * starColors.length)],
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
           x: 0, // Movimento será calculado via seno/cosseno
