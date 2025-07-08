@@ -332,18 +332,33 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
           varying float vTwinkle;
 
           void main() {
-            float distance = length(gl_PointCoord - vec2(0.5));
+            vec2 center = gl_PointCoord - vec2(0.5);
+            float distance = length(center);
 
-            // Create star shape with smooth falloff
-            float star = 1.0 - smoothstep(0.0, 0.5, distance);
+            // Create bright star core
+            float core = 1.0 - smoothstep(0.0, 0.15, distance);
+            core = pow(core, 0.5);
 
-            // Add glow effect
-            float glow = 1.0 - smoothstep(0.0, 0.8, distance);
-            glow = pow(glow, 2.0);
+            // Create soft glow
+            float glow = 1.0 - smoothstep(0.0, 0.5, distance);
+            glow = pow(glow, 3.0);
 
-            float finalAlpha = (star * 0.8 + glow * 0.2) * vOpacity;
+            // Create extended aura
+            float aura = 1.0 - smoothstep(0.0, 0.8, distance);
+            aura = pow(aura, 6.0);
 
-            gl_FragColor = vec4(vColor, finalAlpha);
+            // Combine layers with different intensities
+            float intensity = core * 0.9 + glow * 0.5 + aura * 0.2;
+
+            // Add twinkle variation to the intensity
+            intensity *= (0.7 + 0.3 * vTwinkle);
+
+            float finalAlpha = intensity * vOpacity;
+
+            // Enhance colors slightly
+            vec3 enhancedColor = vColor * (1.0 + 0.2 * vTwinkle);
+
+            gl_FragColor = vec4(enhancedColor, finalAlpha);
           }
         `,
         transparent: true,
