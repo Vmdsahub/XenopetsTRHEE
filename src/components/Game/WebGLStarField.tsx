@@ -122,19 +122,8 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
 
   // Create star systems when stars data changes
   useEffect(() => {
-    if (!sceneRef.current || !stars.length) {
-      console.log("WebGL Star Field: Missing scene or no stars", {
-        scene: !!sceneRef.current,
-        starCount: stars.length,
-      });
-      return;
-    }
+    if (!sceneRef.current || !stars.length) return;
 
-    console.log(
-      "WebGL Star Field: Creating star systems with",
-      stars.length,
-      "stars",
-    );
     const scene = sceneRef.current;
 
     // Clear existing star systems
