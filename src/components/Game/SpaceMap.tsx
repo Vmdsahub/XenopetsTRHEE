@@ -13,6 +13,7 @@ import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { gameService } from "../../services/gameService";
 import { FinalWebGLStars } from "./FinalWebGLStars";
+import { MobileOptimizedWebGLStars } from "./MobileOptimizedWebGLStars";
 import {
   playLaserShootSound,
   playLandingSound,
@@ -165,6 +166,24 @@ const SpaceMapComponent: React.FC = () => {
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
+
+  // Mobile device detection for performance optimization
+  const isMobile = useMemo(() => {
+    return (
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ) ||
+      (window.innerWidth <= 768 && window.devicePixelRatio > 1)
+    );
+  }, []);
+
+  // Adaptive frame rate management
+  const targetFrameTime = isMobile ? 1000 / 45 : 0; // 45 FPS cap on mobile, unlimited on desktop
+  const lastFrameTimeForMobile = useRef(0);
+  const refreshRateRef = useRef(60); // Default to 60Hz
+  const frameTimeHistoryRef = useRef<number[]>([]);
+  const refreshRateDetectedRef = useRef(false);
+
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -174,6 +193,35 @@ const SpaceMapComponent: React.FC = () => {
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
+
+  // Detect monitor refresh rate for optimal frame timing
+  const detectRefreshRate = useCallback(() => {
+    if (refreshRateDetectedRef.current) return;
+
+    const frameHistory = frameTimeHistoryRef.current;
+    if (frameHistory.length >= 60) {
+      // Collect 60 frames for accurate measurement
+      const avgFrameTime =
+        frameHistory.reduce((a, b) => a + b, 0) / frameHistory.length;
+      const detectedRefreshRate = Math.round(1000 / avgFrameTime);
+
+      // Validate detected refresh rate (common rates: 60, 75, 90, 120, 144, 165, 240Hz)
+      const commonRates = [60, 75, 90, 120, 144, 165, 240];
+      const closestRate = commonRates.reduce((prev, curr) =>
+        Math.abs(curr - detectedRefreshRate) <
+        Math.abs(prev - detectedRefreshRate)
+          ? curr
+          : prev,
+      );
+
+      refreshRateRef.current = closestRate;
+      refreshRateDetectedRef.current = true;
+
+      console.log(
+        `🖥️ Detected monitor refresh rate: ${closestRate}Hz (measured: ${detectedRefreshRate}Hz)`,
+      );
+    }
+  }, []);
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
@@ -613,8 +661,11 @@ const SpaceMapComponent: React.FC = () => {
         intensity,
       });
 
-      // Keep only the most recent trail points
-      if (trailPointsRef.current.length > TRAIL_MAX_POINTS) {
+      // Keep only the most recent trail points - fewer on mobile
+      const maxPoints = isMobile
+        ? Math.floor(TRAIL_MAX_POINTS / 2)
+        : TRAIL_MAX_POINTS;
+      if (trailPointsRef.current.length > maxPoints) {
         trailPointsRef.current.shift();
       }
     },
@@ -907,8 +958,9 @@ const SpaceMapComponent: React.FC = () => {
       return colors[Math.floor(Math.random() * colors.length)];
     };
 
-    // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 4000; i++) {
+    // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Reduced for mobile
+    const layer1Count = isMobile ? 1200 : 4000;
+    for (let i = 0; i < layer1Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -939,8 +991,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 2: Mid background (parallax 0.6) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 3500; i++) {
+    // Layer 2: Mid background (parallax 0.6) - ABAIXO do jogador - Reduced for mobile
+    const layer2Count = isMobile ? 1000 : 3500;
+    for (let i = 0; i < layer2Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -971,8 +1024,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 3: Near background (parallax 1.0) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 3000; i++) {
+    // Layer 3: Near background (parallax 1.0) - ABAIXO do jogador - Reduced for mobile
+    const layer3Count = isMobile ? 900 : 3000;
+    for (let i = 0; i < layer3Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1003,8 +1057,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 4: Close background (parallax 1.4) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 2500; i++) {
+    // Layer 4: Close background (parallax 1.4) - ABAIXO do jogador - Reduced for mobile
+    const layer4Count = isMobile ? 750 : 2500;
+    for (let i = 0; i < layer4Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1035,8 +1090,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 5: Cosmic dust foreground (parallax 1.8) - ACIMA do jogador - Aumentado para mais poeira cósmica
-    for (let i = 0; i < 2000; i++) {
+    // Layer 5: Cosmic dust foreground (parallax 1.8) - ACIMA do jogador - Reduced for mobile
+    const layer5Count = isMobile ? 600 : 2000;
+    for (let i = 0; i < layer5Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1067,8 +1123,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 6: Close cosmic dust (parallax 2.2) - ACIMA do jogador - Aumentado para mais densidade
-    for (let i = 0; i < 1500; i++) {
+    // Layer 6: Close cosmic dust (parallax 2.2) - ACIMA do jogador - Reduced for mobile
+    const layer6Count = isMobile ? 400 : 1500;
+    for (let i = 0; i < layer6Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1099,8 +1156,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 7: Micro stars (parallax 0.8) - Additional density layer
-    for (let i = 0; i < 2500; i++) {
+    // Layer 7: Micro stars (parallax 0.8) - Additional density layer - Reduced for mobile
+    const layer7Count = isMobile ? 750 : 2500;
+    for (let i = 0; i < layer7Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1131,8 +1189,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 8: Bright accent stars (parallax 1.2) - Brighter stars for contrast
-    for (let i = 0; i < 800; i++) {
+    // Layer 8: Bright accent stars (parallax 1.2) - Brighter stars for contrast - Reduced for mobile
+    const layer8Count = isMobile ? 250 : 800;
+    for (let i = 0; i < layer8Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1748,6 +1807,7 @@ const SpaceMapComponent: React.FC = () => {
     ctx.globalCompositeOperation = "source-over"; // Default, most GPU-optimized blend mode
 
     let lastTime = 0;
+    let frameStartTime = performance.now();
 
     const gameLoop = (currentTime: number) => {
       // Stop game loop immediately if we're not on world screen
@@ -1755,11 +1815,46 @@ const SpaceMapComponent: React.FC = () => {
         return;
       }
 
-      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação
+      // Collect frame timing data for refresh rate detection (first 60 frames)
+      if (!refreshRateDetectedRef.current && lastTime > 0) {
+        const frameTime = currentTime - lastTime;
+        if (frameTime > 0 && frameTime < 50) {
+          // Filter out invalid measurements
+          frameTimeHistoryRef.current.push(frameTime);
+          if (frameTimeHistoryRef.current.length >= 60) {
+            detectRefreshRate();
+          }
+        }
+      }
 
-      // Intelligent frame skipping for large canvas - skip non-critical updates
+      // Mobile frame rate limiting
+      if (isMobile && targetFrameTime > 0) {
+        const timeSinceLastFrame = currentTime - lastFrameTimeForMobile.current;
+        if (timeSinceLastFrame < targetFrameTime) {
+          gameLoopRef.current = requestAnimationFrame(gameLoop);
+          return;
+        }
+        lastFrameTimeForMobile.current = currentTime;
+      }
+
+      // Calculate delta time with safeguards for high refresh rates
+      const rawDeltaTime = currentTime - lastTime;
+      const deltaTime = lastTime === 0 ? 16.67 : Math.min(rawDeltaTime, 33.33); // Cap to prevent huge jumps
+
+      // Intelligent frame skipping based on canvas size and refresh rate
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
-      const frameSkip = isLargeCanvas ? 2 : 1;
+      const currentRefreshRate = refreshRateRef.current;
+
+      // Adaptive frame skipping: skip more frames on high refresh rates for large canvas
+      let frameSkip = 1;
+      if (isLargeCanvas) {
+        if (currentRefreshRate >= 144)
+          frameSkip = 3; // Skip 2 out of 3 frames at 144Hz+
+        else if (currentRefreshRate >= 120)
+          frameSkip = 2; // Skip 1 out of 2 frames at 120Hz
+        else frameSkip = 1; // No skipping at 60-90Hz
+      }
+
       const skipFrame = frameCounter.current % frameSkip !== 0;
       frameCounter.current++;
 
@@ -2135,10 +2230,12 @@ const SpaceMapComponent: React.FC = () => {
       // Update NPC ship
       npcShip.updateShip(projectileDeltaTime * 1000); // Convert to milliseconds
 
-      // Create shooting stars less frequently for better performance - even less for large canvas
-      const shootingStarInterval = isLargeCanvas
-        ? 25000 + Math.random() * 35000
-        : 15000 + Math.random() * 20000;
+      // Create shooting stars less frequently for better performance - much less on mobile
+      const shootingStarInterval = isMobile
+        ? 40000 + Math.random() * 50000 // Very infrequent on mobile
+        : isLargeCanvas
+          ? 25000 + Math.random() * 35000
+          : 15000 + Math.random() * 20000;
       if (currentTime - lastShootingStarTime.current > shootingStarInterval) {
         createShootingStar(canvas);
         lastShootingStarTime.current = currentTime;
@@ -2516,7 +2613,8 @@ const SpaceMapComponent: React.FC = () => {
       // Create trail points during landing animation (moved outside the progress check)
       if (isLandingAnimationActive && landingAnimationData) {
         const currentTime = performance.now();
-        if (currentTime - lastTrailTime.current > 35) {
+        const trailUpdateInterval = isMobile ? 70 : 35; // Less frequent on mobile
+        if (currentTime - lastTrailTime.current > trailUpdateInterval) {
           const elapsed = currentTime - landingAnimationData.startTime;
           const progress = Math.min(elapsed / landingAnimationData.duration, 1);
 
@@ -2729,11 +2827,14 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height,
       );
 
-      // Continue at maximum possible FPS (uncapped)
+      // Continue at monitor's native refresh rate (adaptive)
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
-    // Start game loop at maximum FPS (uncapped)
+    // Initialize frame timing measurement
+    frameStartTime = performance.now();
+
+    // Start adaptive game loop synchronized with monitor refresh rate
     gameLoopRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
@@ -2790,15 +2891,26 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
-      {/* Final WebGL Stars */}
-      <FinalWebGLStars
-        stars={starsRef.current}
-        cameraX={gameState.camera.x}
-        cameraY={gameState.camera.y}
-        width={canvasDimensions.width}
-        height={canvasDimensions.height}
-        className="absolute inset-0 pointer-events-none z-0"
-      />
+      {/* WebGL Stars - use mobile-optimized version on mobile devices */}
+      {isMobile ? (
+        <MobileOptimizedWebGLStars
+          stars={starsRef.current}
+          cameraX={gameState.camera.x}
+          cameraY={gameState.camera.y}
+          width={canvasDimensions.width}
+          height={canvasDimensions.height}
+          className="absolute inset-0 pointer-events-none z-0"
+        />
+      ) : (
+        <FinalWebGLStars
+          stars={starsRef.current}
+          cameraX={gameState.camera.x}
+          cameraY={gameState.camera.y}
+          width={canvasDimensions.width}
+          height={canvasDimensions.height}
+          className="absolute inset-0 pointer-events-none z-0"
+        />
+      )}
 
       <canvas
         ref={canvasRef}
@@ -3036,7 +3148,7 @@ const SpaceMapComponent: React.FC = () => {
           {/* Interaction Radius Control */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              ����rea de Pouso:{" "}
+              �����rea de Pouso:{" "}
               {Math.round(
                 planetsRef.current.find((p) => p.id === selectedWorldId)
                   ?.interactionRadius || 90,
@@ -3155,7 +3267,8 @@ const SpaceMapComponent: React.FC = () => {
                   : "text-green-400"
             }
           >
-            FPS: {fps}
+            FPS: {fps} {isMobile && "(Mobile)"}{" "}
+            {refreshRateDetectedRef.current && `| ${refreshRateRef.current}Hz`}
           </div>
           <canvas
             ref={fpsGraphRef}
@@ -3178,7 +3291,8 @@ const SpaceMapComponent: React.FC = () => {
             </div>
             <div>�� 1º Click: Selecionar mundo</div>
             <div>
-              • 2º Click: {isDragging ? "Confirmar posição" : "Ativar arrastar"}
+              • 2�� Click:{" "}
+              {isDragging ? "Confirmar posição" : "Ativar arrastar"}
             </div>
             <div>• ESC: Cancelar</div>
             <div>• Painel: Tamanho/Rotação</div>

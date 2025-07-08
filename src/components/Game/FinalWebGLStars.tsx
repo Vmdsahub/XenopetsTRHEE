@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 
 interface Star {
@@ -44,6 +44,16 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
   const pointsRef = useRef<THREE.Points>();
   const materialRef = useRef<THREE.ShaderMaterial>();
 
+  // Mobile device detection for performance optimization
+  const isMobile = useMemo(() => {
+    return (
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ) ||
+      (window.innerWidth <= 768 && window.devicePixelRatio > 1)
+    );
+  }, []);
+
   // Convert hex color to RGB
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -74,14 +84,21 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     );
     camera.position.z = 1;
 
-    // Renderer setup
+    // Renderer setup - optimized for mobile
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: false,
-      powerPreference: "high-performance",
+      powerPreference: isMobile ? "default" : "high-performance",
+      precision: isMobile ? "mediump" : "highp",
+      stencil: false,
+      depth: false,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // More aggressive pixel ratio limiting for mobile
+    const pixelRatio = isMobile
+      ? Math.min(window.devicePixelRatio, 1.5)
+      : Math.min(window.devicePixelRatio, 2);
+    renderer.setPixelRatio(pixelRatio);
     renderer.setClearColor(0x000000, 0);
 
     mountRef.current.appendChild(renderer.domElement);
@@ -145,12 +162,13 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
       colors[i * 3 + 1] = rgb.g;
       colors[i * 3 + 2] = rgb.b;
 
-      // Properties
+      // Properties - smaller on mobile to reduce overdraw
       let sizeMult = 1;
-      if (star.type === "giant") sizeMult = 3.2;
-      else if (star.type === "bright") sizeMult = 2.4;
+      if (star.type === "giant") sizeMult = isMobile ? 2.0 : 3.2;
+      else if (star.type === "bright") sizeMult = isMobile ? 1.6 : 2.4;
 
-      sizes[i] = star.size * sizeMult * 3.5; // Bigger stars to prevent flickering
+      const baseSize = isMobile ? 2.5 : 3.5; // Smaller base size on mobile
+      sizes[i] = star.size * sizeMult * baseSize;
       parallaxValues[i] = star.parallax;
       opacities[i] = star.opacity;
       basePositionsX[i] = star.baseX;
@@ -323,32 +341,43 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     scene.add(points);
   }, [stars, width, height]);
 
-  // Animation loop
+  // Animation loop with adaptive timing
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-    const animate = () => {
-      const time = performance.now();
+    let lastFrameTime = 0;
+    const targetFrameTime = isMobile ? 1000 / 30 : 0; // 30 FPS cap for mobile WebGL
+
+    const animate = (currentTime: number) => {
+      // Mobile frame limiting for WebGL (more conservative than main loop)
+      if (isMobile && targetFrameTime > 0) {
+        if (currentTime - lastFrameTime < targetFrameTime) {
+          animationIdRef.current = requestAnimationFrame(animate);
+          return;
+        }
+        lastFrameTime = currentTime;
+      }
 
       // Update uniforms
       if (materialRef.current) {
-        materialRef.current.uniforms.time.value = time;
+        materialRef.current.uniforms.time.value = currentTime;
         materialRef.current.uniforms.cameraX.value = cameraX;
         materialRef.current.uniforms.cameraY.value = cameraY;
       }
 
+      // Render frame synchronized with monitor refresh rate
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animate(performance.now());
 
     return () => {
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, [cameraX, cameraY]);
+  }, [cameraX, cameraY, isMobile]);
 
   // Update camera when dimensions change
   useEffect(() => {
