@@ -283,20 +283,44 @@ export const MobileOptimizedWebGLStars: React.FC<
   }, [width, height]);
 
   return (
-    <div
-      ref={mountRef}
-      className={className}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: width + "px",
-        height: height + "px",
-        pointerEvents: "none",
-        zIndex: 0,
-        backgroundColor: "transparent", // Transparent background to show stars
-        overflow: "hidden", // Ensure content doesn't overflow
-      }}
-    />
+    <>
+      <div
+        ref={mountRef}
+        className={className}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: width + "px",
+          height: height + "px",
+          pointerEvents: "none",
+          zIndex: 0,
+          backgroundColor: "transparent", // Transparent background to show stars
+          overflow: "hidden", // Ensure content doesn't overflow
+        }}
+      />
+      {/* Debug info overlay for mobile */}
+      {process.env.NODE_ENV === "development" && (
+        <div
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            background: "rgba(0,0,0,0.8)",
+            color: "white",
+            padding: "5px",
+            fontSize: "10px",
+            zIndex: 1000,
+            pointerEvents: "none",
+          }}
+        >
+          Mobile Stars: {stars.length} → {Math.min(stars.length, 3000)}
+          <br />
+          Canvas: {width}×{height}
+          <br />
+          DPR: {window.devicePixelRatio}
+        </div>
+      )}
+    </>
   );
 };
