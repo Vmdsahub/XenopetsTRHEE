@@ -12,7 +12,7 @@ import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { gameService } from "../../services/gameService";
-import { SimpleWebGLStars } from "./SimpleWebGLStars";
+import { WebGLStarField } from "./WebGLStarField";
 import {
   playLaserShootSound,
   playLandingSound,
@@ -36,7 +36,7 @@ interface Star {
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
   baseY: number; // Posição base para movimento oscilatório
-  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua�����o
+  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
 
