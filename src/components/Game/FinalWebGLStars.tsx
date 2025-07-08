@@ -275,14 +275,14 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
           vec4 mvPosition = modelViewMatrix * vec4(worldPos, 1.0);
           gl_Position = projectionMatrix * mvPosition;
 
-          // Calculate twinkling and pulsing
-          float twinkleAlpha = sin(twinklePhase + timeOffset * speed * 4.0) * 0.3 + 0.7;
-          float pulseSize = sin(twinklePhase * 1.5 + timeOffset * speed * 3.0) * 0.2 + 1.0;
+          // Gentler twinkling to prevent complete disappearing
+          float twinkleAlpha = sin(twinklePhase + timeOffset * speed * 2.0) * 0.2 + 0.8;
+          float pulseSize = sin(twinklePhase * 1.2 + timeOffset * speed * 1.5) * 0.15 + 1.0;
 
           vOpacity = opacity * twinkleAlpha;
           vTwinkle = twinkleAlpha;
 
-          gl_PointSize = size * pulseSize;
+          gl_PointSize = size * pulseSize * 2.0; // Even bigger stars
         }
       `,
       fragmentShader: `
