@@ -2199,8 +2199,11 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Create rich deep space background with multiple color layers
-      // Base deep space gradient - much darker for better depth
+      // Clear canvas to show WebGL stars underneath
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Create subtle transparent nebula background that lets WebGL stars show through
+      // Base subtle space gradient for depth, much more transparent
       const gradient = ctx.createRadialGradient(
         canvas.width * 0.3,
         canvas.height * 0.2,
@@ -2209,12 +2212,12 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.8,
         Math.max(canvas.width, canvas.height) * 1.5,
       );
-      gradient.addColorStop(0, "#050510"); // Very dark blue-purple center
-      gradient.addColorStop(0.2, "#0a0f1e"); // Dark navy
-      gradient.addColorStop(0.4, "#070a15"); // Darker blue
-      gradient.addColorStop(0.6, "#050810"); // Nearly black blue
-      gradient.addColorStop(0.8, "#020508"); // Almost pure black
-      gradient.addColorStop(1, "#000000"); // Pure black edges
+      gradient.addColorStop(0, "rgba(5, 5, 16, 0.3)"); // Very transparent center
+      gradient.addColorStop(0.2, "rgba(10, 15, 30, 0.25)"); // Transparent navy
+      gradient.addColorStop(0.4, "rgba(7, 10, 21, 0.2)"); // More transparent
+      gradient.addColorStop(0.6, "rgba(5, 8, 16, 0.15)"); // Even more transparent
+      gradient.addColorStop(0.8, "rgba(2, 5, 8, 0.1)"); // Very transparent
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0.05)"); // Almost fully transparent edges
 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
