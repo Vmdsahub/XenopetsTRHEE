@@ -139,27 +139,42 @@ export const MobileOptimizedWebGLStars: React.FC<
     const sizes = new Float32Array(sampledStars.length);
 
     sampledStars.forEach((star, i) => {
-      // Simple static positions (no complex animations on mobile)
-      const screenX = (star.x - cameraX) * star.parallax + width / 2;
-      const screenY = (star.y - cameraY) * star.parallax + height / 2;
+      // Fixed positioning calculation for mobile
+      const parallaxX = (star.x - cameraX) * star.parallax;
+      const parallaxY = (star.y - cameraY) * star.parallax;
 
-      positions[i * 3] = screenX - width / 2;
-      positions[i * 3 + 1] = height / 2 - screenY;
+      // Convert to screen coordinates properly
+      positions[i * 3] = parallaxX;
+      positions[i * 3 + 1] = parallaxY;
       positions[i * 3 + 2] = 0;
 
-      // Simplified colors (only white and blue)
-      if (star.color === "#ffffff" || Math.random() > 0.8) {
-        colors[i * 3] = 1;
-        colors[i * 3 + 1] = 1;
-        colors[i * 3 + 2] = 1;
+      // Better color handling with proper hex color parsing
+      const color = star.color || "#ffffff";
+      if (
+        color === "#ffffff" ||
+        star.type === "bright" ||
+        star.type === "giant"
+      ) {
+        colors[i * 3] = 1.0; // R
+        colors[i * 3 + 1] = 1.0; // G
+        colors[i * 3 + 2] = 1.0; // B
+      } else if (color === "#4fc3f7" || color.includes("blue")) {
+        colors[i * 3] = 0.31; // R
+        colors[i * 3 + 1] = 0.76; // G
+        colors[i * 3 + 2] = 0.97; // B
       } else {
-        colors[i * 3] = 0.7;
-        colors[i * 3 + 1] = 0.8;
-        colors[i * 3 + 2] = 1;
+        colors[i * 3] = 0.8; // R
+        colors[i * 3 + 1] = 0.9; // G
+        colors[i * 3 + 2] = 1.0; // B
       }
 
-      // Smaller, simpler sizes
-      sizes[i] = Math.max(1, star.size * 1.5);
+      // Larger, more visible sizes for mobile
+      let sizeMultiplier = 1.0;
+      if (star.type === "giant") sizeMultiplier = 4.0;
+      else if (star.type === "bright") sizeMultiplier = 2.5;
+      else sizeMultiplier = 1.5;
+
+      sizes[i] = Math.max(2.0, star.size * sizeMultiplier * 2.0); // Make stars bigger on mobile
     });
 
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
