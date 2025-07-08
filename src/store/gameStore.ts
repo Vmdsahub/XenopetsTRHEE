@@ -32,6 +32,10 @@ interface GameStore extends GameState {
   isWorldEditMode: boolean;
   setWorldEditMode: (enabled: boolean) => void;
 
+  // Barrier collision toggle
+  isBarrierCollisionEnabled: boolean;
+  setBarrierCollisionEnabled: (enabled: boolean) => void;
+
   // Egg selection and hatching state
   selectedEggForHatching: any | null;
   isHatchingInProgress: boolean;
