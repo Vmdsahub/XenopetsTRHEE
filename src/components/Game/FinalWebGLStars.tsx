@@ -46,12 +46,18 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
 
   // Mobile device detection for performance optimization
   const isMobile = useMemo(() => {
-    return (
+    // Check for mobile user agents
+    const mobileUA =
       /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
-      ) ||
-      (window.innerWidth <= 768 && window.devicePixelRatio > 1)
-    );
+      );
+
+    // Check for touch capability and smaller screens
+    const touchDevice =
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const smallScreen = window.innerWidth <= 1024; // Increased threshold for tablets
+
+    return mobileUA || (touchDevice && smallScreen);
   }, []);
 
   // Convert hex color to RGB
