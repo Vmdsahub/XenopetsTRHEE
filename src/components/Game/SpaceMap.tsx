@@ -2825,6 +2825,50 @@ const SpaceMapComponent: React.FC = () => {
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseDown(mouseEvent);
+          }
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseMove(mouseEvent);
+          }
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          const touch = e.changedTouches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseUp(mouseEvent);
+            // Also trigger click for tap actions
+            handleClick(mouseEvent);
+          }
+        }}
       />
 
       {/* Simple Admin Button for World Editing */}
