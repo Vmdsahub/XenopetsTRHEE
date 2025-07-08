@@ -2867,7 +2867,7 @@ const SpaceMapComponent: React.FC = () => {
             }`}
             style={{ pointerEvents: "auto" }}
           >
-            {isBarrierCollisionEnabled ? "Barreira ON" : "Barreira OFF"}
+            {isBarrierCollisionEnabled ? "🚧 Barreira ON" : "⚡ Barreira OFF"}
           </button>
         </div>
       )}
