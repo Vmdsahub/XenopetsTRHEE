@@ -1829,8 +1829,8 @@ const SpaceMapComponent: React.FC = () => {
           if (mouseInWindow && distance > 10) {
             const speedMultiplier = Math.min(distance / 300, 1);
             const targetSpeed = SHIP_MAX_SPEED * speedMultiplier;
-            newState.ship.vx += (dx / distance) * targetSpeed * 0.04;
-            newState.ship.vy += (dy / distance) * targetSpeed * 0.04;
+            newState.ship.vx += (dx / distance) * targetSpeed * 0.067;
+            newState.ship.vy += (dy / distance) * targetSpeed * 0.067;
           }
         }
 
