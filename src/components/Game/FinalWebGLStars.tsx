@@ -382,8 +382,13 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         height: height + "px",
         pointerEvents: "none",
         zIndex: 0,
-        background:
-          "linear-gradient(135deg, #0a0f1e 0%, #050810 50%, #020508 100%)", // Blue gradient background
+        background: `
+          radial-gradient(ellipse at 20% 30%, rgba(70, 50, 120, 0.4) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 20%, rgba(60, 100, 150, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 40% 80%, rgba(80, 60, 140, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 70%, rgba(40, 80, 120, 0.2) 0%, transparent 50%),
+          linear-gradient(135deg, #1a1f3e 0%, #0f1628 40%, #0a0f1e 70%, #050810 100%)
+        `, // Beautiful galaxy background with nebula effects
       }}
     />
   );
