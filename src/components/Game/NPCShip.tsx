@@ -43,7 +43,7 @@ interface UseNPCShipProps {
   isPaused?: boolean;
 }
 
-const WORLD_SIZE = 15000;
+const WORLD_SIZE = 100000;
 const CENTER_X = WORLD_SIZE / 2;
 const CENTER_Y = WORLD_SIZE / 2;
 const BARRIER_RADIUS = 600;
