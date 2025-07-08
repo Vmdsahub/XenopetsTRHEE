@@ -58,27 +58,39 @@ export const MobileOptimizedWebGLStars: React.FC<
     );
     camera.position.z = 1;
 
-    // Renderer setup - heavily optimized for mobile
+    // Renderer setup - optimized for mobile with better compatibility
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: false,
-      powerPreference: "default", // Don't force high-performance on mobile
-      precision: "lowp", // Low precision for mobile
+      powerPreference: "high-performance", // Use high-performance for 120Hz support
+      precision: "mediump", // Better precision for mobile
       stencil: false,
       depth: false,
       premultipliedAlpha: true,
+      preserveDrawingBuffer: false, // Better for mobile
+      failIfMajorPerformanceCaveat: false, // Don't fail on mobile
     });
 
-    // Very conservative settings for mobile
+    // Better mobile settings that preserve 120Hz capability
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); // Even more conservative
+    // Support full device pixel ratio for crisp rendering on high-DPI displays
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
     renderer.setClearColor(0x000000, 0);
 
-    // Disable expensive features
+    // Disable expensive features but keep essential ones
     renderer.shadowMap.enabled = false;
     renderer.sortObjects = false;
 
-    mountRef.current.appendChild(renderer.domElement);
+    // Ensure canvas is properly styled for mobile
+    const canvas = renderer.domElement;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.style.display = "block";
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+
+    mountRef.current.appendChild(canvas);
 
     // Store references
     sceneRef.current = scene;
@@ -89,8 +101,8 @@ export const MobileOptimizedWebGLStars: React.FC<
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && canvas.parentNode === mountRef.current) {
+        mountRef.current.removeChild(canvas);
       }
       renderer.dispose();
     };
