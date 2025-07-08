@@ -270,9 +270,8 @@ export const MobileOptimizedWebGLStars: React.FC<
         height: height + "px",
         pointerEvents: "none",
         zIndex: 0,
-        background: `
-          linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
-        `, // Simplified background for mobile
+        backgroundColor: "transparent", // Transparent background to show stars
+        overflow: "hidden", // Ensure content doesn't overflow
       }}
     />
   );
