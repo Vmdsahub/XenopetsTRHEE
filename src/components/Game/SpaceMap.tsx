@@ -858,10 +858,51 @@ const SpaceMapComponent: React.FC = () => {
 
     // Generate infinite color tonalities for stars
     const generateRandomStarColor = () => {
-      const hue = Math.random() * 360; // 0-360 degrees
-      const saturation = 30 + Math.random() * 70; // 30-100% saturation
-      const lightness = 50 + Math.random() * 40; // 50-90% lightness for visible stars
-      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      const colors = [
+        // Greens
+        "#90EE90",
+        "#98FB98",
+        "#00FF7F",
+        "#32CD32",
+        "#00FA9A",
+        "#7CFC00",
+        // Purples
+        "#DA70D6",
+        "#BA55D3",
+        "#9370DB",
+        "#8A2BE2",
+        "#9932CC",
+        "#DDA0DD",
+        // Pinks
+        "#FF69B4",
+        "#FFB6C1",
+        "#FFC0CB",
+        "#FF1493",
+        "#FF6347",
+        "#FFE4E1",
+        // Reds
+        "#FF6B6B",
+        "#FF4444",
+        "#FF7F7F",
+        "#FF5555",
+        "#FF8888",
+        "#FFA0A0",
+        // Oranges
+        "#FFA500",
+        "#FF8C00",
+        "#FFB347",
+        "#FF7F50",
+        "#FFA07A",
+        "#FFAB91",
+        // Blues
+        "#87CEEB",
+        "#87CEFA",
+        "#4169E1",
+        "#6495ED",
+        "#00BFFF",
+        "#1E90FF",
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
     };
 
     // Layer 1: Deep background (parallax 0.3) - ABAIXO do jogador - Aumentado para mais estrelas
@@ -878,7 +919,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.015 + 0.005,
         parallax: 0.3, // Camada mais distante
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
           x: 0, // Movimento será calculado via seno/cosseno
@@ -910,7 +951,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.018 + 0.007,
         parallax: 0.6, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -942,7 +983,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.022 + 0.009,
         parallax: 1.0, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.15 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -974,7 +1015,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.025 + 0.012,
         parallax: 1.4, // Paralaxe distinta
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.2 ? "bright" : "normal",
         drift: {
           x: 0,
@@ -1006,7 +1047,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.01 + 0.005, // Velocidade reduzida
         parallax: 1.8, // Paralaxe de primeiro plano
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.15 ? "bright" : "normal", // Menos estrelas giant
         drift: {
           x: 0,
@@ -1038,7 +1079,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.008 + 0.003, // Muito lento
         parallax: 2.2, // Máximo paralaxe
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: Math.random() < 0.1 ? "bright" : "normal", // Principalmente normais
         drift: {
           x: 0,
@@ -1070,7 +1111,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.012 + 0.004,
         parallax: 0.8, // Between layers 1 and 2
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type: "normal",
         drift: {
           x: 0,
@@ -1102,7 +1143,7 @@ const SpaceMapComponent: React.FC = () => {
         speed: Math.random() * 0.02 + 0.01,
         parallax: 1.2,
         twinkle: Math.random() * 100,
-        color: Math.random() < 0.8 ? "#ffffff" : generateRandomStarColor(),
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
         type:
           Math.random() < 0.4
             ? "bright"
