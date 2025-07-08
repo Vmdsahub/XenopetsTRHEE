@@ -346,10 +346,17 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
     let lastFrameTime = 0;
-    const targetFrameTime = 0; // FPS uncapped for all devices
+    const targetFrameTime = isMobile ? 1000 / 30 : 0; // 30 FPS cap for mobile WebGL
 
     const animate = (currentTime: number) => {
-      // FPS uncapped - no frame rate limiting for any device
+      // Mobile frame limiting for WebGL (more conservative than main loop)
+      if (isMobile && targetFrameTime > 0) {
+        if (currentTime - lastFrameTime < targetFrameTime) {
+          animationIdRef.current = requestAnimationFrame(animate);
+          return;
+        }
+        lastFrameTime = currentTime;
+      }
 
       // Update uniforms
       if (materialRef.current) {

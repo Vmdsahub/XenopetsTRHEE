@@ -2,11 +2,10 @@
 
 ## 🚀 Mudanças Implementadas
 
-### Game Loop Desbloqueado (Desktop & Mobile)
+### Game Loop Desbloqueado
 
 - **Delta Time**: Removida limitação de `Math.min(deltaTime, 16.67)`
 - **Projectiles**: Removido cap de `0.033s` (30 FPS)
-- **Mobile FPS**: Removidas limitações de 45 FPS e 30 FPS WebGL
 - **RequestAnimationFrame**: Configurado para rodar na máxima frequência possível
 
 ### Antes vs Depois
@@ -79,9 +78,7 @@ gameLoopRef.current = requestAnimationFrame(gameLoop);
 
 - **High-end GPU**: 120-300+ FPS
 - **Mid-range GPU**: 80-150 FPS
-- **Mobile High-end**: 90-144+ FPS (em displays 120Hz+/144Hz+)
-- **Mobile Mid-range**: 60-120 FPS
-- **Mobile/Integrated**: 30-90 FPS
+- **Mobile/Integrated**: 60-90 FPS
 - **Low-end**: 30-60 FPS
 
 ## 🎮 Configuração Recomendada
@@ -113,24 +110,6 @@ const frameTime = 1000 / targetFPS;
 if (deltaTime < frameTime) return; // Skip frame
 ```
 
-## ��� Mobile High Refresh Rate Support
-
-### Dispositivos Suportados
-
-- **iPhone 13 Pro+**: 120Hz ProMotion
-- **iPad Pro**: 120Hz ProMotion
-- **Samsung Galaxy S21+**: 120Hz
-- **OnePlus 7 Pro+**: 90Hz/120Hz
-- **Pixel 6+**: 90Hz/120Hz
-
-### Configuração Mobile
-
-```javascript
-// Detecção automática da taxa de refresh móvel
-const mobileRefreshRate = screen.availHeight > 800 ? 120 : 90;
-// Aproveitamento máximo sem limitações artificiais
-```
-
 ## 🎯 Resultado
 
-O jogo agora roda **completamente desbloqueado** em **todos os dispositivos**, incluindo mobile, aproveitando 100% da capacidade do hardware disponível para máxima performance e responsividade.
+O jogo agora roda **completamente desbloqueado**, aproveitando 100% da capacidade do hardware disponível para máxima performance e responsividade.
