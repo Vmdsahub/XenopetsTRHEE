@@ -137,6 +137,8 @@ const SpaceMapComponent: React.FC = () => {
     currentScreen,
     isWorldEditMode,
     setWorldEditMode,
+    isBarrierCollisionEnabled,
+    setBarrierCollisionEnabled,
     user,
     worldPositions,
     loadWorldPositions,
@@ -1843,62 +1845,69 @@ const SpaceMapComponent: React.FC = () => {
           const newX = newState.ship.x + newState.ship.vx;
           const newY = newState.ship.y + newState.ship.vy;
 
-          // Check barrier collision
-          const distanceFromCenter = Math.sqrt(
-            Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
-          );
-
-          if (distanceFromCenter <= BARRIER_RADIUS) {
-            // Ship can move normally within barrier
-            newState.ship.x = newX;
-            newState.ship.y = newY;
-          } else {
-            // Ship trying to move outside barrier
-            setBarrierFlashTime(currentTime);
-
-            // Calculate the direction from center to the ship's current position
-            const centerToShipX = newState.ship.x - CENTER_X;
-            const centerToShipY = newState.ship.y - CENTER_Y;
-            const centerToShipDist = Math.sqrt(
-              centerToShipX * centerToShipX + centerToShipY * centerToShipY,
+          // Check barrier collision only if enabled
+          if (isBarrierCollisionEnabled) {
+            const distanceFromCenter = Math.sqrt(
+              Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
             );
 
-            if (centerToShipDist > 0) {
-              // Normalize the vector from center to ship (this is the normal to the barrier)
-              const normalX = centerToShipX / centerToShipDist;
-              const normalY = centerToShipY / centerToShipDist;
+            if (distanceFromCenter <= BARRIER_RADIUS) {
+              // Ship can move normally within barrier
+              newState.ship.x = newX;
+              newState.ship.y = newY;
+            } else {
+              // Ship trying to move outside barrier
+              setBarrierFlashTime(currentTime);
 
-              // Project the movement vector onto the normal and tangent
-              const movementX = newX - newState.ship.x;
-              const movementY = newY - newState.ship.y;
+              // Calculate the direction from center to the ship's current position
+              const centerToShipX = newState.ship.x - CENTER_X;
+              const centerToShipY = newState.ship.y - CENTER_Y;
+              const centerToShipDist = Math.sqrt(
+                centerToShipX * centerToShipX + centerToShipY * centerToShipY,
+              );
 
-              // Calculate radial component (toward/away from center)
-              const radialComponent = movementX * normalX + movementY * normalY;
+              if (centerToShipDist > 0) {
+                // Normalize the vector from center to ship (this is the normal to the barrier)
+                const normalX = centerToShipX / centerToShipDist;
+                const normalY = centerToShipY / centerToShipDist;
 
-              // Calculate tangential component (parallel to barrier)
-              const tangentX = movementX - radialComponent * normalX;
-              const tangentY = movementY - radialComponent * normalY;
+                // Project the movement vector onto the normal and tangent
+                const movementX = newX - newState.ship.x;
+                const movementY = newY - newState.ship.y;
 
-              // Always allow tangential movement
-              newState.ship.x += tangentX;
-              newState.ship.y += tangentY;
+                // Calculate radial component (toward/away from center)
+                const radialComponent =
+                  movementX * normalX + movementY * normalY;
 
-              // Allow radial movement only if it's toward the center (negative radial component)
-              if (radialComponent < 0) {
-                // Moving toward center - allow this movement
-                newState.ship.x += radialComponent * normalX;
-                newState.ship.y += radialComponent * normalY;
-              }
+                // Calculate tangential component (parallel to barrier)
+                const tangentX = movementX - radialComponent * normalX;
+                const tangentY = movementY - radialComponent * normalY;
 
-              // Adjust velocity to prevent moving outward
-              const velocityDotNormal =
-                newState.ship.vx * normalX + newState.ship.vy * normalY;
-              if (velocityDotNormal > 0) {
-                // Remove outward velocity component
-                newState.ship.vx -= velocityDotNormal * normalX;
-                newState.ship.vy -= velocityDotNormal * normalY;
+                // Always allow tangential movement
+                newState.ship.x += tangentX;
+                newState.ship.y += tangentY;
+
+                // Allow radial movement only if it's toward the center (negative radial component)
+                if (radialComponent < 0) {
+                  // Moving toward center - allow this movement
+                  newState.ship.x += radialComponent * normalX;
+                  newState.ship.y += radialComponent * normalY;
+                }
+
+                // Adjust velocity to prevent moving outward
+                const velocityDotNormal =
+                  newState.ship.vx * normalX + newState.ship.vy * normalY;
+                if (velocityDotNormal > 0) {
+                  // Remove outward velocity component
+                  newState.ship.vx -= velocityDotNormal * normalX;
+                  newState.ship.vy -= velocityDotNormal * normalY;
+                }
               }
             }
+          } else {
+            // Barrier collision disabled - allow free movement
+            newState.ship.x = newX;
+            newState.ship.y = newY;
           }
 
           newState.ship.x = normalizeCoord(newState.ship.x);
@@ -2816,33 +2825,103 @@ const SpaceMapComponent: React.FC = () => {
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseDown(mouseEvent);
+          }
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseMove(mouseEvent);
+          }
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          const touch = e.changedTouches[0];
+          const rect = canvasRef.current?.getBoundingClientRect();
+          if (rect) {
+            const mouseEvent = {
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            } as React.MouseEvent<HTMLCanvasElement>;
+            handleMouseUp(mouseEvent);
+            // Also trigger click for tap actions
+            handleClick(mouseEvent);
+          }
+        }}
       />
 
-      {/* Simple Admin Button for World Editing */}
+      {/* Admin Controls - Mobile Responsive */}
       {user?.isAdmin && (
-        <div className="absolute top-2 right-2 space-y-2 gpu-ui-overlay">
+        <div className="absolute top-2 right-2 space-y-2 z-50">
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Button clicked, current mode:", isWorldEditMode);
+              console.log("setWorldEditMode function:", setWorldEditMode);
+
               setWorldEditMode(!isWorldEditMode);
+
               if (isWorldEditMode) {
                 setSelectedWorldId(null);
                 setIsDragging(false);
               }
             }}
-            className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+            className={`block w-full px-4 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
               isWorldEditMode
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-red-600 text-white hover:bg-red-700 active:bg-red-800"
+                : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
             }`}
+            style={{ pointerEvents: "auto", minWidth: "120px" }}
           >
             {isWorldEditMode ? "Sair Edição" : "Editar Mundos"}
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setBarrierCollisionEnabled(!isBarrierCollisionEnabled);
+            }}
+            className={`block w-full px-4 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
+              isBarrierCollisionEnabled
+                ? "bg-green-600 text-white hover:bg-green-700 active:bg-green-800"
+                : "bg-orange-600 text-white hover:bg-orange-700 active:bg-orange-800"
+            }`}
+            style={{ pointerEvents: "auto", minWidth: "120px" }}
+          >
+            {isBarrierCollisionEnabled ? "🚧 Barreira ON" : "⚡ Barreira OFF"}
           </button>
         </div>
       )}
 
       {/* World Controls when selected */}
       {user?.isAdmin && isWorldEditMode && selectedWorldId && (
-        <div className="absolute top-14 right-2 bg-white rounded-lg p-3 shadow-lg border border-gray-200 w-64">
+        <div
+          className="absolute top-24 right-2 bg-white rounded-lg p-4 shadow-lg border border-gray-200 w-72 sm:w-64 z-50 max-h-[70vh] overflow-y-auto"
+          style={{ pointerEvents: "auto" }}
+        >
           <h4 className="text-sm font-bold text-gray-900 mb-3">
             Mundo:{" "}
             {planetsRef.current.find((p) => p.id === selectedWorldId)?.name}
@@ -2864,7 +2943,10 @@ const SpaceMapComponent: React.FC = () => {
                   ?.size || 60
               }
               onChange={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const newSize = Number(e.target.value);
+                console.log("📏 Size control changed to:", newSize);
 
                 // Update immediately for responsive feedback
                 planetsRef.current = planetsRef.current.map((planet) =>
@@ -2881,21 +2963,23 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("📏 Attempting to save world size:", {
-                      selectedWorldId,
-                      newSize,
-                    });
                     console.log("📏 Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
-                    updateWorldPosition(selectedWorldId, {
-                      size: newSize,
-                    });
+                    try {
+                      updateWorldPosition(selectedWorldId, {
+                        size: newSize,
+                      });
+                      console.log("📏 Size saved successfully");
+                    } catch (error) {
+                      console.error("📏 Error saving size:", error);
+                    }
                   }
                 }, 300);
               }}
-              className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-4 bg-blue-200 rounded-lg appearance-none cursor-pointer touch-manipulation"
+              style={{ minHeight: "20px" }}
             />
           </div>
 
@@ -2944,7 +3028,8 @@ const SpaceMapComponent: React.FC = () => {
                   }
                 }, 300);
               }}
-              className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-4 bg-purple-200 rounded-lg appearance-none cursor-pointer touch-manipulation"
+              style={{ minHeight: "20px" }}
             />
           </div>
 
@@ -2991,20 +3076,21 @@ const SpaceMapComponent: React.FC = () => {
                   }
                 }, 300);
               }}
-              className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-4 bg-green-200 rounded-lg appearance-none cursor-pointer touch-manipulation"
+              style={{ minHeight: "20px" }}
             />
           </div>
 
-          <div className="flex space-x-2 mt-3">
+          <div className="flex space-x-2 mt-4">
             <button
               onClick={() => {
                 setIsDragging(true);
                 setDragOffset({ x: 0, y: 0 });
               }}
-              className={`flex-1 px-2 py-1 text-xs rounded ${
+              className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
                 isDragging
                   ? "bg-red-100 text-red-700 border border-red-300"
-                  : "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                  : "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 active:bg-green-300"
               }`}
               disabled={isDragging}
             >
@@ -3035,7 +3121,7 @@ const SpaceMapComponent: React.FC = () => {
                   setIsDragging(false);
                   setDragOffset({ x: 0, y: 0 });
                 }}
-                className="flex-1 px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200"
+                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 active:bg-blue-300"
               >
                 Confirmar
               </button>
