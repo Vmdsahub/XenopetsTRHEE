@@ -59,17 +59,33 @@ export const MobileOptimizedWebGLStars: React.FC<
     camera.position.z = 1;
 
     // Renderer setup - optimized for mobile with better compatibility
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: false,
-      powerPreference: "high-performance", // Use high-performance for 120Hz support
-      precision: "mediump", // Better precision for mobile
-      stencil: false,
-      depth: false,
-      premultipliedAlpha: true,
-      preserveDrawingBuffer: false, // Better for mobile
-      failIfMajorPerformanceCaveat: false, // Don't fail on mobile
-    });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance", // Use high-performance for 120Hz support
+        precision: "mediump", // Better precision for mobile
+        stencil: false,
+        depth: false,
+        premultipliedAlpha: true,
+        preserveDrawingBuffer: false, // Better for mobile
+        failIfMajorPerformanceCaveat: false, // Don't fail on mobile
+      });
+
+      // Debug WebGL context
+      const gl = renderer.getContext();
+      console.log(`WebGL context created successfully on mobile:`, {
+        version: gl.getParameter(gl.VERSION),
+        vendor: gl.getParameter(gl.VENDOR),
+        renderer: gl.getParameter(gl.RENDERER),
+        maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+        supportedExtensions: gl.getSupportedExtensions?.()?.length || 0,
+      });
+    } catch (error) {
+      console.error("Failed to create WebGL context on mobile:", error);
+      return;
+    }
 
     // Better mobile settings that preserve 120Hz capability
     renderer.setSize(width, height);
