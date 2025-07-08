@@ -382,7 +382,8 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         height: height + "px",
         pointerEvents: "none",
         zIndex: 0,
-        backgroundColor: "rgba(0, 255, 0, 0.05)", // Very subtle green background for debug
+        background:
+          "linear-gradient(135deg, #0a0f1e 0%, #050810 50%, #020508 100%)", // Blue gradient background
       }}
     />
   );
