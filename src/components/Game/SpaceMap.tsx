@@ -1845,16 +1845,17 @@ const SpaceMapComponent: React.FC = () => {
           const newX = newState.ship.x + newState.ship.vx;
           const newY = newState.ship.y + newState.ship.vy;
 
-          // Check barrier collision
-          const distanceFromCenter = Math.sqrt(
-            Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
-          );
+          // Check barrier collision only if enabled
+          if (isBarrierCollisionEnabled) {
+            const distanceFromCenter = Math.sqrt(
+              Math.pow(newX - CENTER_X, 2) + Math.pow(newY - CENTER_Y, 2),
+            );
 
-          if (distanceFromCenter <= BARRIER_RADIUS) {
-            // Ship can move normally within barrier
-            newState.ship.x = newX;
-            newState.ship.y = newY;
-          } else {
+            if (distanceFromCenter <= BARRIER_RADIUS) {
+              // Ship can move normally within barrier
+              newState.ship.x = newX;
+              newState.ship.y = newY;
+            } else {
             // Ship trying to move outside barrier
             setBarrierFlashTime(currentTime);
 
