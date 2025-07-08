@@ -12,7 +12,7 @@ import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { gameService } from "../../services/gameService";
-import { MinimalWebGLStars } from "./MinimalWebGLStars";
+import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
   playLaserShootSound,
   playLandingSound,
