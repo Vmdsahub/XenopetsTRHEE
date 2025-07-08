@@ -385,6 +385,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
         height: height + "px",
         pointerEvents: "none",
         zIndex: 0,
+        backgroundColor: "rgba(0, 255, 0, 0.05)", // Very subtle green background for debug
       }}
     />
   );
