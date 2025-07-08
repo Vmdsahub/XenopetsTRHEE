@@ -3028,7 +3028,8 @@ const SpaceMapComponent: React.FC = () => {
                   }
                 }, 300);
               }}
-              className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-4 bg-purple-200 rounded-lg appearance-none cursor-pointer touch-manipulation"
+              style={{ minHeight: "20px" }}
             />
           </div>
 
@@ -3172,7 +3173,7 @@ const SpaceMapComponent: React.FC = () => {
         {user?.isAdmin && isWorldEditMode ? (
           <>
             <div className="text-yellow-400 font-bold mb-1">
-              ��� MODO EDIÇÃO
+              ����� MODO EDIÇÃO
             </div>
             <div>�� 1º Click: Selecionar mundo</div>
             <div>
