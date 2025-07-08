@@ -137,6 +137,8 @@ const SpaceMapComponent: React.FC = () => {
     currentScreen,
     isWorldEditMode,
     setWorldEditMode,
+    isBarrierCollisionEnabled,
+    setBarrierCollisionEnabled,
     user,
     worldPositions,
     loadWorldPositions,
