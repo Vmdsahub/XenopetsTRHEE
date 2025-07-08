@@ -2837,8 +2837,9 @@ const SpaceMapComponent: React.FC = () => {
       <canvas
         ref={canvasRef}
         className="w-full h-full game-canvas gpu-accelerated hardware-canvas force-gpu-layer"
-        style={{ position: "relative", zIndex: 1 }}
         style={{
+          position: "relative",
+          zIndex: 1,
           cursor:
             user?.isAdmin && isWorldEditMode
               ? isDragging
