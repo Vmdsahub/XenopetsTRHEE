@@ -293,25 +293,19 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
           void main() {
             vColor = color;
 
-            // Calculate floating motion (same as original implementation)
+            // Calculate floating motion
             float timeOffset = time * 0.0008;
             float baseSpeed = 0.8 + speed * 0.4;
             float primaryTime = timeOffset * baseSpeed;
-            float secondaryTime = timeOffset * baseSpeed * 0.6;
 
-            float floatX = sin(primaryTime + floatPhaseX) * floatAmplitudeX * 0.6 +
-                          sin(secondaryTime * 0.7 + floatPhaseX * 1.3) * floatAmplitudeX * 0.3 +
-                          sin(primaryTime * 0.3 + floatPhaseX * 0.8) * floatAmplitudeX * 0.1;
+            float floatX = sin(primaryTime + floatPhaseX) * floatAmplitudeX * 0.3;
+            float floatY = cos(primaryTime + floatPhaseY) * floatAmplitudeY * 0.3;
 
-            float floatY = cos(primaryTime * 0.8 + floatPhaseY) * floatAmplitudeY * 0.6 +
-                          cos(secondaryTime * 0.6 + floatPhaseY * 1.2) * floatAmplitudeY * 0.3 +
-                          cos(primaryTime * 0.4 + floatPhaseY * 0.9) * floatAmplitudeY * 0.1;
-
-            // Normalize star position with floating motion
+            // Calculate star world position
             float starX = normalizeCoord(basePositionX + floatX);
             float starY = normalizeCoord(basePositionY + floatY);
 
-            // Apply parallax effect (same as original implementation)
+            // Apply parallax effect
             float wrappedDeltaX = getWrappedDistance(starX, cameraX);
             float wrappedDeltaY = getWrappedDistance(starY, cameraY);
 
@@ -321,19 +315,19 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
             float screenX = centerX + parallaxX;
             float screenY = centerY + parallaxY;
 
-            // Use world matrix transformation instead of manual NDC calculation
-            vec4 worldPosition = vec4(screenX - centerX, centerY - screenY, 0.0, 1.0);
-            vec4 mvPosition = modelViewMatrix * worldPosition;
+            // Convert to world space position (simplified)
+            vec3 worldPos = vec3(screenX - centerX, centerY - screenY, 0.0);
+            vec4 mvPosition = modelViewMatrix * vec4(worldPos, 1.0);
             gl_Position = projectionMatrix * mvPosition;
 
-            // Calculate twinkling and pulsing
+            // Calculate effects
             float twinkleAlpha = sin(twinklePhase + time * speed * 0.4) * 0.3 + 0.7;
             float pulseSize = sin(pulsePhase + time * speed * 0.3) * 0.2 + 1.0;
 
             vOpacity = opacity * twinkleAlpha;
             vTwinkle = twinkleAlpha;
 
-            gl_PointSize = size * pulseSize * 4.0; // Increase size for visibility
+            gl_PointSize = size * pulseSize * 3.0;
           }
         `,
         fragmentShader: `
