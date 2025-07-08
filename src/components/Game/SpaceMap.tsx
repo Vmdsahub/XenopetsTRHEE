@@ -12,6 +12,7 @@ import { PlanetLandingModal } from "./PlanetLandingModal";
 import { useNPCShip } from "./NPCShip";
 import { NPCModal } from "./NPCModal";
 import { gameService } from "../../services/gameService";
+import { FinalWebGLStars } from "./FinalWebGLStars";
 import {
   playLaserShootSound,
   playLandingSound,
@@ -162,6 +163,10 @@ const SpaceMapComponent: React.FC = () => {
   const lastFrameTimeRef = useRef(performance.now());
   const frameCounter = useRef(0);
   const [isMousePressed, setIsMousePressed] = useState(false);
+  const [canvasDimensions, setCanvasDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   const lastRadarPulseTime = useRef<Map<string, number>>(new Map());
   const planetImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const shipImageRef = useRef<HTMLImageElement | null>(null);
@@ -1727,7 +1732,7 @@ const SpaceMapComponent: React.FC = () => {
 
     // Get 2D context with GPU-optimized settings
     const ctx = canvas.getContext("2d", {
-      alpha: false, // Disable alpha channel for better performance
+      alpha: true, // Enable alpha channel for transparency over WebGL stars
       desynchronized: true, // Allow asynchronous rendering for better GPU usage
       willReadFrequently: false, // Optimize for GPU rendering, not CPU reading
     });
@@ -1791,6 +1796,7 @@ const SpaceMapComponent: React.FC = () => {
       ) {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
+        setCanvasDimensions({ width: canvas.width, height: canvas.height });
       }
 
       const centerX = canvas.width / 2;
@@ -2069,59 +2075,7 @@ const SpaceMapComponent: React.FC = () => {
         }))
         .filter((pulse) => pulse.life > 0 && pulse.radius <= pulse.maxRadius);
 
-      // Update stars with smooth floating motion - limited to 10 FPS, with frame skipping for large canvas
-      if (
-        currentTime - lastStarUpdateTime.current >= STAR_UPDATE_INTERVAL &&
-        !skipFrame
-      ) {
-        const stars = starsRef.current;
-        const time = currentTime * 0.0008; // Slower, more natural timing
-        const starsLength = stars.length;
-
-        // Skip stars for large canvas to improve performance
-        const stepSize = isLargeCanvas ? 2 : 1;
-
-        for (let i = 0; i < starsLength; i += stepSize) {
-          const star = stars[i];
-
-          // Natural floating motion with multiple sine waves for organic movement
-          const baseSpeed = 0.8 + star.speed * 0.4; // More consistent speed range
-          const primaryTime = time * baseSpeed;
-          const secondaryTime = time * baseSpeed * 1.618; // Golden ratio for natural variation
-
-          // Layer multiple sine waves for more organic movement
-          const floatX =
-            Math.sin(primaryTime + star.floatPhase.x) *
-              star.floatAmplitude.x *
-              0.6 +
-            Math.sin(secondaryTime * 0.7 + star.floatPhase.x * 1.3) *
-              star.floatAmplitude.x *
-              0.3 +
-            Math.sin(primaryTime * 0.3 + star.floatPhase.x * 0.8) *
-              star.floatAmplitude.x *
-              0.1;
-
-          const floatY =
-            Math.cos(primaryTime * 0.8 + star.floatPhase.y) *
-              star.floatAmplitude.y *
-              0.6 +
-            Math.cos(secondaryTime * 0.6 + star.floatPhase.y * 1.2) *
-              star.floatAmplitude.y *
-              0.3 +
-            Math.cos(primaryTime * 0.4 + star.floatPhase.y * 0.9) *
-              star.floatAmplitude.y *
-              0.1;
-
-          star.x = normalizeCoord(star.baseX + floatX);
-          star.y = normalizeCoord(star.baseY + floatY);
-
-          // Smoother twinkle and pulse updates
-          star.twinkle += star.speed * 0.4;
-          star.pulse += star.speed * 0.3;
-        }
-
-        lastStarUpdateTime.current = currentTime;
-      }
+      // Stars are now updated entirely on GPU in WebGL shaders for better performance
 
       // Update planet floating positions
       const planets = planetsRef.current;
@@ -2198,8 +2152,11 @@ const SpaceMapComponent: React.FC = () => {
         }
       }
 
-      // Create rich deep space background with multiple color layers
-      // Base deep space gradient - much darker for better depth
+      // Clear canvas to show WebGL stars underneath
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Create subtle transparent nebula background that lets WebGL stars show through
+      // Base subtle space gradient for depth, much more transparent
       const gradient = ctx.createRadialGradient(
         canvas.width * 0.3,
         canvas.height * 0.2,
@@ -2208,18 +2165,18 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.8,
         Math.max(canvas.width, canvas.height) * 1.5,
       );
-      gradient.addColorStop(0, "#050510"); // Very dark blue-purple center
-      gradient.addColorStop(0.2, "#0a0f1e"); // Dark navy
-      gradient.addColorStop(0.4, "#070a15"); // Darker blue
-      gradient.addColorStop(0.6, "#050810"); // Nearly black blue
-      gradient.addColorStop(0.8, "#020508"); // Almost pure black
-      gradient.addColorStop(1, "#000000"); // Pure black edges
+      gradient.addColorStop(0, "rgba(5, 5, 16, 0.3)"); // Very transparent center
+      gradient.addColorStop(0.2, "rgba(10, 15, 30, 0.25)"); // Transparent navy
+      gradient.addColorStop(0.4, "rgba(7, 10, 21, 0.2)"); // More transparent
+      gradient.addColorStop(0.6, "rgba(5, 8, 16, 0.15)"); // Even more transparent
+      gradient.addColorStop(0.8, "rgba(2, 5, 8, 0.1)"); // Very transparent
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0.05)"); // Almost fully transparent edges
 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Add multiple nebula layers for depth
-      // Purple-pink nebula (distant)
+      // Add very subtle nebula layers for depth, letting WebGL stars shine through
+      // Purple-pink nebula (distant) - much more transparent
       const nebulaGradient1 = ctx.createRadialGradient(
         canvas.width * 0.8,
         canvas.height * 0.2,
@@ -2228,15 +2185,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.2,
         canvas.width * 0.6,
       );
-      nebulaGradient1.addColorStop(0, "rgba(120, 60, 150, 0.06)");
-      nebulaGradient1.addColorStop(0.3, "rgba(80, 40, 120, 0.04)");
-      nebulaGradient1.addColorStop(0.6, "rgba(60, 30, 90, 0.02)");
+      nebulaGradient1.addColorStop(0, "rgba(120, 60, 150, 0.02)");
+      nebulaGradient1.addColorStop(0.3, "rgba(80, 40, 120, 0.015)");
+      nebulaGradient1.addColorStop(0.6, "rgba(60, 30, 90, 0.01)");
       nebulaGradient1.addColorStop(1, "rgba(120, 60, 150, 0)");
 
       ctx.fillStyle = nebulaGradient1;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Blue-cyan nebula (mid distance)
+      // Blue-cyan nebula (mid distance) - much more transparent
       const nebulaGradient2 = ctx.createRadialGradient(
         canvas.width * 0.15,
         canvas.height * 0.7,
@@ -2245,15 +2202,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.7,
         canvas.width * 0.5,
       );
-      nebulaGradient2.addColorStop(0, "rgba(60, 120, 180, 0.05)");
-      nebulaGradient2.addColorStop(0.4, "rgba(40, 90, 140, 0.03)");
-      nebulaGradient2.addColorStop(0.7, "rgba(20, 60, 100, 0.015)");
+      nebulaGradient2.addColorStop(0, "rgba(60, 120, 180, 0.02)");
+      nebulaGradient2.addColorStop(0.4, "rgba(40, 90, 140, 0.015)");
+      nebulaGradient2.addColorStop(0.7, "rgba(20, 60, 100, 0.008)");
       nebulaGradient2.addColorStop(1, "rgba(60, 120, 180, 0)");
 
       ctx.fillStyle = nebulaGradient2;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Green-teal nebula (closer)
+      // Green-teal nebula (closer) - much more transparent
       const nebulaGradient3 = ctx.createRadialGradient(
         canvas.width * 0.6,
         canvas.height * 0.8,
@@ -2262,15 +2219,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.8,
         canvas.width * 0.4,
       );
-      nebulaGradient3.addColorStop(0, "rgba(60, 150, 120, 0.04)");
-      nebulaGradient3.addColorStop(0.3, "rgba(40, 120, 90, 0.025)");
-      nebulaGradient3.addColorStop(0.6, "rgba(20, 80, 60, 0.012)");
+      nebulaGradient3.addColorStop(0, "rgba(60, 150, 120, 0.015)");
+      nebulaGradient3.addColorStop(0.3, "rgba(40, 120, 90, 0.01)");
+      nebulaGradient3.addColorStop(0.6, "rgba(20, 80, 60, 0.005)");
       nebulaGradient3.addColorStop(1, "rgba(60, 150, 120, 0)");
 
       ctx.fillStyle = nebulaGradient3;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Warm orange nebula (accent)
+      // Warm orange nebula (accent) - much more transparent
       const nebulaGradient4 = ctx.createRadialGradient(
         canvas.width * 0.4,
         canvas.height * 0.1,
@@ -2279,9 +2236,9 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.1,
         canvas.width * 0.3,
       );
-      nebulaGradient4.addColorStop(0, "rgba(200, 120, 60, 0.03)");
-      nebulaGradient4.addColorStop(0.4, "rgba(160, 90, 40, 0.02)");
-      nebulaGradient4.addColorStop(0.7, "rgba(120, 60, 20, 0.01)");
+      nebulaGradient4.addColorStop(0, "rgba(200, 120, 60, 0.01)");
+      nebulaGradient4.addColorStop(0.4, "rgba(160, 90, 40, 0.008)");
+      nebulaGradient4.addColorStop(0.7, "rgba(120, 60, 20, 0.005)");
       nebulaGradient4.addColorStop(1, "rgba(200, 120, 60, 0)");
 
       ctx.fillStyle = nebulaGradient4;
@@ -2296,80 +2253,7 @@ const SpaceMapComponent: React.FC = () => {
         bottom: canvas.height + renderBuffer,
       };
 
-      // Optimized batching with LOD for large canvas
-      const starBatches = { normal: [], bright: [], giant: [] };
-      const starArray = starsRef.current;
-      const arrayLength = starArray.length;
-
-      // Skip every other star for distant layers to reduce load
-      const skipFactor = canvas.width > 1000 ? 2 : 1;
-
-      // Use more aggressive culling and simplified calculations
-      for (let i = 0; i < arrayLength; i += skipFactor) {
-        const star = starArray[i];
-        const wrappedDeltaX = getWrappedDistance(star.x, gameState.camera.x);
-        const wrappedDeltaY = getWrappedDistance(star.y, gameState.camera.y);
-
-        const parallaxX = wrappedDeltaX * star.parallax;
-        const parallaxY = wrappedDeltaY * star.parallax;
-        const screenX = centerX + parallaxX;
-        const screenY = centerY + parallaxY;
-
-        // Tighter viewport check with early exit for performance
-        if (
-          screenX >= renderViewport.left &&
-          screenX <= renderViewport.right &&
-          screenY >= renderViewport.top &&
-          screenY <= renderViewport.bottom
-        ) {
-          // Simplified twinkling - less CPU intensive for distant stars
-          const twinkleAlpha =
-            star.parallax < 0.3 ? 0.8 : Math.sin(star.twinkle) * 0.3 + 0.7;
-          const pulseSize =
-            star.type === "giant" ? Math.sin(star.pulse * 0.5) * 0.2 + 1 : 1;
-
-          let finalAlpha = star.opacity * twinkleAlpha;
-          let finalSize = star.size * pulseSize;
-
-          // Simplified type-based enhancements
-          if (star.type === "bright") {
-            finalAlpha *= 1.3;
-            finalSize *= 1.1;
-          } else if (star.type === "giant") {
-            finalAlpha *= 1.5;
-            finalSize *= 1.4;
-          }
-
-          starBatches[star.type].push({
-            x: Math.round(screenX),
-            y: Math.round(screenY),
-            size: finalSize,
-            alpha: finalAlpha,
-            color: star.color,
-            type: star.type,
-          });
-        }
-      }
-
-      // Render batched stars (normal first, then bright, then giant for layering)
-      Object.keys(starBatches).forEach((type) => {
-        const batch = starBatches[type];
-        for (let i = 0, len = batch.length; i < len; i++) {
-          const star = batch[i];
-          ctx.save();
-          ctx.globalAlpha = star.alpha;
-          drawPureLightStar(
-            ctx,
-            star.x,
-            star.y,
-            star.size,
-            star.color,
-            star.alpha,
-            star.type,
-          );
-          ctx.restore();
-        }
-      });
+      // Stars are now rendered using WebGL in the WebGLStarField component
 
       // Render barrier circle (rotating, gray, transparent)
       const barrierWrappedDeltaX = getWrappedDistance(
@@ -2893,10 +2777,23 @@ const SpaceMapComponent: React.FC = () => {
       />
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
+
+      {/* Final WebGL Stars */}
+      <FinalWebGLStars
+        stars={starsRef.current}
+        cameraX={gameState.camera.x}
+        cameraY={gameState.camera.y}
+        width={canvasDimensions.width}
+        height={canvasDimensions.height}
+        className="absolute inset-0 pointer-events-none z-0"
+      />
+
       <canvas
         ref={canvasRef}
         className="w-full h-full game-canvas gpu-accelerated hardware-canvas force-gpu-layer"
         style={{
+          position: "relative",
+          zIndex: 1,
           cursor:
             user?.isAdmin && isWorldEditMode
               ? isDragging
