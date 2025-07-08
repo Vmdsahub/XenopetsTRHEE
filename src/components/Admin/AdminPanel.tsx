@@ -538,7 +538,6 @@ export const AdminPanel: React.FC = () => {
 
         <div className="p-6">
           {activeTab === "codes" && renderCodesTab()}
-          {activeTab === "worlds" && renderWorldsTab()}
           {activeTab === "users" && (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
