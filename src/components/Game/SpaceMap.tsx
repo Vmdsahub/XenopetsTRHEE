@@ -177,9 +177,12 @@ const SpaceMapComponent: React.FC = () => {
     );
   }, []);
 
-  // Mobile frame rate limiting
+  // Adaptive frame rate management
   const targetFrameTime = isMobile ? 1000 / 45 : 0; // 45 FPS cap on mobile, unlimited on desktop
   const lastFrameTimeForMobile = useRef(0);
+  const refreshRateRef = useRef(60); // Default to 60Hz
+  const frameTimeHistoryRef = useRef<number[]>([]);
+  const refreshRateDetectedRef = useRef(false);
 
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: window.innerWidth,
@@ -190,6 +193,35 @@ const SpaceMapComponent: React.FC = () => {
   const shipImageRef = useRef<HTMLImageElement | null>(null);
   const movementSoundActiveRef = useRef<boolean>(false);
   const shouldHideShipRef = useRef<boolean>(false);
+
+  // Detect monitor refresh rate for optimal frame timing
+  const detectRefreshRate = useCallback(() => {
+    if (refreshRateDetectedRef.current) return;
+
+    const frameHistory = frameTimeHistoryRef.current;
+    if (frameHistory.length >= 60) {
+      // Collect 60 frames for accurate measurement
+      const avgFrameTime =
+        frameHistory.reduce((a, b) => a + b, 0) / frameHistory.length;
+      const detectedRefreshRate = Math.round(1000 / avgFrameTime);
+
+      // Validate detected refresh rate (common rates: 60, 75, 90, 120, 144, 165, 240Hz)
+      const commonRates = [60, 75, 90, 120, 144, 165, 240];
+      const closestRate = commonRates.reduce((prev, curr) =>
+        Math.abs(curr - detectedRefreshRate) <
+        Math.abs(prev - detectedRefreshRate)
+          ? curr
+          : prev,
+      );
+
+      refreshRateRef.current = closestRate;
+      refreshRateDetectedRef.current = true;
+
+      console.log(
+        `🖥️ Detected monitor refresh rate: ${closestRate}Hz (measured: ${detectedRefreshRate}Hz)`,
+      );
+    }
+  }, []);
 
   // Initialize state from store or use defaults
   const getInitialGameState = useCallback((): GameState => {
@@ -1775,11 +1807,24 @@ const SpaceMapComponent: React.FC = () => {
     ctx.globalCompositeOperation = "source-over"; // Default, most GPU-optimized blend mode
 
     let lastTime = 0;
+    let frameStartTime = performance.now();
 
     const gameLoop = (currentTime: number) => {
       // Stop game loop immediately if we're not on world screen
       if (currentScreen !== "world") {
         return;
+      }
+
+      // Collect frame timing data for refresh rate detection (first 60 frames)
+      if (!refreshRateDetectedRef.current && lastTime > 0) {
+        const frameTime = currentTime - lastTime;
+        if (frameTime > 0 && frameTime < 50) {
+          // Filter out invalid measurements
+          frameTimeHistoryRef.current.push(frameTime);
+          if (frameTimeHistoryRef.current.length >= 60) {
+            detectRefreshRate();
+          }
+        }
       }
 
       // Mobile frame rate limiting
@@ -1792,11 +1837,24 @@ const SpaceMapComponent: React.FC = () => {
         lastFrameTimeForMobile.current = currentTime;
       }
 
-      const deltaTime = currentTime - lastTime; // FPS desbloqueado - sem limitação para desktop
+      // Calculate delta time with safeguards for high refresh rates
+      const rawDeltaTime = currentTime - lastTime;
+      const deltaTime = lastTime === 0 ? 16.67 : Math.min(rawDeltaTime, 33.33); // Cap to prevent huge jumps
 
-      // Intelligent frame skipping for large canvas - skip non-critical updates
+      // Intelligent frame skipping based on canvas size and refresh rate
       const isLargeCanvas = canvas.width > 1000 || canvas.height > 600;
-      const frameSkip = isLargeCanvas ? 2 : 1;
+      const currentRefreshRate = refreshRateRef.current;
+
+      // Adaptive frame skipping: skip more frames on high refresh rates for large canvas
+      let frameSkip = 1;
+      if (isLargeCanvas) {
+        if (currentRefreshRate >= 144)
+          frameSkip = 3; // Skip 2 out of 3 frames at 144Hz+
+        else if (currentRefreshRate >= 120)
+          frameSkip = 2; // Skip 1 out of 2 frames at 120Hz
+        else frameSkip = 1; // No skipping at 60-90Hz
+      }
+
       const skipFrame = frameCounter.current % frameSkip !== 0;
       frameCounter.current++;
 
@@ -2769,11 +2827,14 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height,
       );
 
-      // Continue at maximum possible FPS (uncapped)
+      // Continue at monitor's native refresh rate (adaptive)
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
-    // Start game loop at maximum FPS (uncapped)
+    // Initialize frame timing measurement
+    frameStartTime = performance.now();
+
+    // Start adaptive game loop synchronized with monitor refresh rate
     gameLoopRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
@@ -3206,7 +3267,8 @@ const SpaceMapComponent: React.FC = () => {
                   : "text-green-400"
             }
           >
-            FPS: {fps} {isMobile && "(Mobile)"}
+            FPS: {fps} {isMobile && "(Mobile)"}{" "}
+            {refreshRateDetectedRef.current && `| ${refreshRateRef.current}Hz`}
           </div>
           <canvas
             ref={fpsGraphRef}
