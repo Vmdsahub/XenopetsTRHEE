@@ -2222,8 +2222,8 @@ const SpaceMapComponent: React.FC = () => {
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Add multiple nebula layers for depth
-      // Purple-pink nebula (distant)
+      // Add very subtle nebula layers for depth, letting WebGL stars shine through
+      // Purple-pink nebula (distant) - much more transparent
       const nebulaGradient1 = ctx.createRadialGradient(
         canvas.width * 0.8,
         canvas.height * 0.2,
@@ -2232,15 +2232,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.2,
         canvas.width * 0.6,
       );
-      nebulaGradient1.addColorStop(0, "rgba(120, 60, 150, 0.06)");
-      nebulaGradient1.addColorStop(0.3, "rgba(80, 40, 120, 0.04)");
-      nebulaGradient1.addColorStop(0.6, "rgba(60, 30, 90, 0.02)");
+      nebulaGradient1.addColorStop(0, "rgba(120, 60, 150, 0.02)");
+      nebulaGradient1.addColorStop(0.3, "rgba(80, 40, 120, 0.015)");
+      nebulaGradient1.addColorStop(0.6, "rgba(60, 30, 90, 0.01)");
       nebulaGradient1.addColorStop(1, "rgba(120, 60, 150, 0)");
 
       ctx.fillStyle = nebulaGradient1;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Blue-cyan nebula (mid distance)
+      // Blue-cyan nebula (mid distance) - much more transparent
       const nebulaGradient2 = ctx.createRadialGradient(
         canvas.width * 0.15,
         canvas.height * 0.7,
@@ -2249,15 +2249,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.7,
         canvas.width * 0.5,
       );
-      nebulaGradient2.addColorStop(0, "rgba(60, 120, 180, 0.05)");
-      nebulaGradient2.addColorStop(0.4, "rgba(40, 90, 140, 0.03)");
-      nebulaGradient2.addColorStop(0.7, "rgba(20, 60, 100, 0.015)");
+      nebulaGradient2.addColorStop(0, "rgba(60, 120, 180, 0.02)");
+      nebulaGradient2.addColorStop(0.4, "rgba(40, 90, 140, 0.015)");
+      nebulaGradient2.addColorStop(0.7, "rgba(20, 60, 100, 0.008)");
       nebulaGradient2.addColorStop(1, "rgba(60, 120, 180, 0)");
 
       ctx.fillStyle = nebulaGradient2;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Green-teal nebula (closer)
+      // Green-teal nebula (closer) - much more transparent
       const nebulaGradient3 = ctx.createRadialGradient(
         canvas.width * 0.6,
         canvas.height * 0.8,
@@ -2266,15 +2266,15 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.8,
         canvas.width * 0.4,
       );
-      nebulaGradient3.addColorStop(0, "rgba(60, 150, 120, 0.04)");
-      nebulaGradient3.addColorStop(0.3, "rgba(40, 120, 90, 0.025)");
-      nebulaGradient3.addColorStop(0.6, "rgba(20, 80, 60, 0.012)");
+      nebulaGradient3.addColorStop(0, "rgba(60, 150, 120, 0.015)");
+      nebulaGradient3.addColorStop(0.3, "rgba(40, 120, 90, 0.01)");
+      nebulaGradient3.addColorStop(0.6, "rgba(20, 80, 60, 0.005)");
       nebulaGradient3.addColorStop(1, "rgba(60, 150, 120, 0)");
 
       ctx.fillStyle = nebulaGradient3;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Warm orange nebula (accent)
+      // Warm orange nebula (accent) - much more transparent
       const nebulaGradient4 = ctx.createRadialGradient(
         canvas.width * 0.4,
         canvas.height * 0.1,
@@ -2283,9 +2283,9 @@ const SpaceMapComponent: React.FC = () => {
         canvas.height * 0.1,
         canvas.width * 0.3,
       );
-      nebulaGradient4.addColorStop(0, "rgba(200, 120, 60, 0.03)");
-      nebulaGradient4.addColorStop(0.4, "rgba(160, 90, 40, 0.02)");
-      nebulaGradient4.addColorStop(0.7, "rgba(120, 60, 20, 0.01)");
+      nebulaGradient4.addColorStop(0, "rgba(200, 120, 60, 0.01)");
+      nebulaGradient4.addColorStop(0.4, "rgba(160, 90, 40, 0.008)");
+      nebulaGradient4.addColorStop(0.7, "rgba(120, 60, 20, 0.005)");
       nebulaGradient4.addColorStop(1, "rgba(200, 120, 60, 0)");
 
       ctx.fillStyle = nebulaGradient4;
