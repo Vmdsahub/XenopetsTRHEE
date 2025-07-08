@@ -36,7 +36,7 @@ interface Star {
   pulse: number;
   baseX: number; // Posição base para movimento oscilatório
   baseY: number; // Posição base para movimento oscilatório
-  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua���ão
+  floatAmplitude: { x: number; y: number }; // Amplitude do movimento de flutua�����o
   floatPhase: { x: number; y: number }; // Fase do movimento senoidal
 }
 
@@ -2778,14 +2778,10 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
-      {/* WebGL Star Field */}
-      <WebGLStarField
-        stars={starsRef.current}
-        cameraX={gameState.camera.x}
-        cameraY={gameState.camera.y}
+      {/* Simple WebGL Stars for Testing */}
+      <SimpleWebGLStars
         width={canvasDimensions.width}
         height={canvasDimensions.height}
-        className="absolute inset-0 pointer-events-none z-0"
       />
 
       <canvas
