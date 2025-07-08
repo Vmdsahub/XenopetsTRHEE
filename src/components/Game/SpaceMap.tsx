@@ -3194,7 +3194,7 @@ const SpaceMapComponent: React.FC = () => {
                   : "text-green-400"
             }
           >
-            FPS: {fps}
+            FPS: {fps} {isMobile && "(Mobile)"}
           </div>
           <canvas
             ref={fpsGraphRef}
