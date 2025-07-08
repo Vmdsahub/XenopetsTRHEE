@@ -2778,14 +2778,10 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
-      {/* Working WebGL Stars */}
-      <WorkingWebGLStars
-        stars={starsRef.current}
-        cameraX={gameState.camera.x}
-        cameraY={gameState.camera.y}
+      {/* Minimal WebGL Stars */}
+      <MinimalWebGLStars
         width={canvasDimensions.width}
         height={canvasDimensions.height}
-        className="absolute inset-0 pointer-events-none z-0"
       />
 
       <canvas
