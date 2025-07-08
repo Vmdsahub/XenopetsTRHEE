@@ -628,8 +628,11 @@ const SpaceMapComponent: React.FC = () => {
         intensity,
       });
 
-      // Keep only the most recent trail points
-      if (trailPointsRef.current.length > TRAIL_MAX_POINTS) {
+      // Keep only the most recent trail points - fewer on mobile
+      const maxPoints = isMobile
+        ? Math.floor(TRAIL_MAX_POINTS / 2)
+        : TRAIL_MAX_POINTS;
+      if (trailPointsRef.current.length > maxPoints) {
         trailPointsRef.current.shift();
       }
     },
