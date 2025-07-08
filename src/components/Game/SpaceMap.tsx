@@ -2820,17 +2820,19 @@ const SpaceMapComponent: React.FC = () => {
 
       {/* Simple Admin Button for World Editing */}
       {user?.isAdmin && (
-        <div className="absolute top-2 right-2 space-y-2 gpu-ui-overlay">
+        <div className="absolute top-2 right-2 space-y-2 z-50">
           <button
-            onClick={() => {
-              try {
-                setWorldEditMode(!isWorldEditMode);
-                if (isWorldEditMode) {
-                  setSelectedWorldId(null);
-                  setIsDragging(false);
-                }
-              } catch (error) {
-                console.error("Error toggling world edit mode:", error);
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Button clicked, current mode:", isWorldEditMode);
+              console.log("setWorldEditMode function:", setWorldEditMode);
+
+              setWorldEditMode(!isWorldEditMode);
+
+              if (isWorldEditMode) {
+                setSelectedWorldId(null);
+                setIsDragging(false);
               }
             }}
             className={`block w-full px-3 py-1 text-xs rounded-lg font-medium transition-all ${
@@ -2838,6 +2840,7 @@ const SpaceMapComponent: React.FC = () => {
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
+            style={{ pointerEvents: "auto" }}
           >
             {isWorldEditMode ? "Sair Edição" : "Editar Mundos"}
           </button>
