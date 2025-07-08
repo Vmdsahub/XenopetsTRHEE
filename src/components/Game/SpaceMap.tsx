@@ -983,8 +983,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 3: Near background (parallax 1.0) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 3000; i++) {
+    // Layer 3: Near background (parallax 1.0) - ABAIXO do jogador - Reduced for mobile
+    const layer3Count = isMobile ? 900 : 3000;
+    for (let i = 0; i < layer3Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1015,8 +1016,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 4: Close background (parallax 1.4) - ABAIXO do jogador - Aumentado para mais estrelas
-    for (let i = 0; i < 2500; i++) {
+    // Layer 4: Close background (parallax 1.4) - ABAIXO do jogador - Reduced for mobile
+    const layer4Count = isMobile ? 750 : 2500;
+    for (let i = 0; i < layer4Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1047,8 +1049,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 5: Cosmic dust foreground (parallax 1.8) - ACIMA do jogador - Aumentado para mais poeira cósmica
-    for (let i = 0; i < 2000; i++) {
+    // Layer 5: Cosmic dust foreground (parallax 1.8) - ACIMA do jogador - Reduced for mobile
+    const layer5Count = isMobile ? 600 : 2000;
+    for (let i = 0; i < layer5Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1079,8 +1082,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 6: Close cosmic dust (parallax 2.2) - ACIMA do jogador - Aumentado para mais densidade
-    for (let i = 0; i < 1500; i++) {
+    // Layer 6: Close cosmic dust (parallax 2.2) - ACIMA do jogador - Reduced for mobile
+    const layer6Count = isMobile ? 400 : 1500;
+    for (let i = 0; i < layer6Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1111,8 +1115,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 7: Micro stars (parallax 0.8) - Additional density layer
-    for (let i = 0; i < 2500; i++) {
+    // Layer 7: Micro stars (parallax 0.8) - Additional density layer - Reduced for mobile
+    const layer7Count = isMobile ? 750 : 2500;
+    for (let i = 0; i < layer7Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
@@ -1143,8 +1148,9 @@ const SpaceMapComponent: React.FC = () => {
       });
     }
 
-    // Layer 8: Bright accent stars (parallax 1.2) - Brighter stars for contrast
-    for (let i = 0; i < 800; i++) {
+    // Layer 8: Bright accent stars (parallax 1.2) - Brighter stars for contrast - Reduced for mobile
+    const layer8Count = isMobile ? 250 : 800;
+    for (let i = 0; i < layer8Count; i++) {
       const baseX = Math.random() * WORLD_SIZE;
       const baseY = Math.random() * WORLD_SIZE;
       stars.push({
