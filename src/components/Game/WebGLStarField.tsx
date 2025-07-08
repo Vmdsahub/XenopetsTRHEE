@@ -380,9 +380,16 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
       const points = new THREE.Points(geometry, material);
       starSystems[type] = points;
       scene.add(points);
+      console.log(
+        `WebGL Star Field: Added ${typeStars.length} ${type} stars to scene`,
+      );
     });
 
     starSystemsRef.current = starSystems;
+    console.log(
+      "WebGL Star Field: Star systems created:",
+      Object.keys(starSystems),
+    );
   }, [stars, width, height]);
 
   // Animation loop
