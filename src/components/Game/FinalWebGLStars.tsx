@@ -341,32 +341,43 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     scene.add(points);
   }, [stars, width, height]);
 
-  // Animation loop
+  // Animation loop with adaptive timing
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-    const animate = () => {
-      const time = performance.now();
+    let lastFrameTime = 0;
+    const targetFrameTime = isMobile ? 1000 / 30 : 0; // 30 FPS cap for mobile WebGL
+
+    const animate = (currentTime: number) => {
+      // Mobile frame limiting for WebGL (more conservative than main loop)
+      if (isMobile && targetFrameTime > 0) {
+        if (currentTime - lastFrameTime < targetFrameTime) {
+          animationIdRef.current = requestAnimationFrame(animate);
+          return;
+        }
+        lastFrameTime = currentTime;
+      }
 
       // Update uniforms
       if (materialRef.current) {
-        materialRef.current.uniforms.time.value = time;
+        materialRef.current.uniforms.time.value = currentTime;
         materialRef.current.uniforms.cameraX.value = cameraX;
         materialRef.current.uniforms.cameraY.value = cameraY;
       }
 
+      // Render frame synchronized with monitor refresh rate
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animate(performance.now());
 
     return () => {
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, [cameraX, cameraY]);
+  }, [cameraX, cameraY, isMobile]);
 
   // Update camera when dimensions change
   useEffect(() => {
