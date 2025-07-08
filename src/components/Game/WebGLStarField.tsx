@@ -88,7 +88,7 @@ export const WebGLStarField: React.FC<WebGLStarFieldProps> = ({
       0.1,
       1000,
     );
-    camera.position.z = 100;
+    camera.position.z = 1;
 
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({
