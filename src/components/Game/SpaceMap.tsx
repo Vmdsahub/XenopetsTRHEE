@@ -3081,16 +3081,16 @@ const SpaceMapComponent: React.FC = () => {
             />
           </div>
 
-          <div className="flex space-x-2 mt-3">
+          <div className="flex space-x-2 mt-4">
             <button
               onClick={() => {
                 setIsDragging(true);
                 setDragOffset({ x: 0, y: 0 });
               }}
-              className={`flex-1 px-2 py-1 text-xs rounded ${
+              className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
                 isDragging
                   ? "bg-red-100 text-red-700 border border-red-300"
-                  : "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+                  : "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 active:bg-green-300"
               }`}
               disabled={isDragging}
             >
