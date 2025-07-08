@@ -177,26 +177,15 @@ export const AdminPanel: React.FC = () => {
 
   const renderWorldsTab = () => (
     <div className="space-y-6">
-      {/* Header with Reset Button */}
+      {/* Header */}
       <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900">
-              Gerenciamento de Mundos
-            </h3>
-            <p className="text-gray-600">
-              Gerencie posições e configurações dos mundos
-            </p>
-          </div>
-          <motion.button
-            onClick={handleResetWorldPositions}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-all font-semibold shadow-lg"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <RotateCcw className="w-5 h-5" />
-            <span>Resetar Posições</span>
-          </motion.button>
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-gray-900">
+            Gerenciamento de Mundos
+          </h3>
+          <p className="text-gray-600">
+            Visualize posições e configurações dos mundos
+          </p>
         </div>
 
         {/* Stats */}
