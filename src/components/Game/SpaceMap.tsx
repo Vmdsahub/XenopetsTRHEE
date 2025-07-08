@@ -2778,8 +2778,8 @@ const SpaceMapComponent: React.FC = () => {
 
       <NPCModal isOpen={showNPCModal} onClose={() => setShowNPCModal(false)} />
 
-      {/* WebGL Star Field */}
-      <WebGLStarField
+      {/* Working WebGL Stars */}
+      <WorkingWebGLStars
         stars={starsRef.current}
         cameraX={gameState.camera.x}
         cameraY={gameState.camera.y}
