@@ -2919,7 +2919,7 @@ const SpaceMapComponent: React.FC = () => {
       {/* World Controls when selected */}
       {user?.isAdmin && isWorldEditMode && selectedWorldId && (
         <div
-          className="absolute top-14 right-2 bg-white rounded-lg p-3 shadow-lg border border-gray-200 w-64 z-50"
+          className="absolute top-24 right-2 bg-white rounded-lg p-4 shadow-lg border border-gray-200 w-72 sm:w-64 z-50 max-h-[70vh] overflow-y-auto"
           style={{ pointerEvents: "auto" }}
         >
           <h4 className="text-sm font-bold text-gray-900 mb-3">
