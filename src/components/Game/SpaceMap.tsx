@@ -1728,7 +1728,7 @@ const SpaceMapComponent: React.FC = () => {
 
     // Get 2D context with GPU-optimized settings
     const ctx = canvas.getContext("2d", {
-      alpha: false, // Disable alpha channel for better performance
+      alpha: true, // Enable alpha channel for transparency over WebGL stars
       desynchronized: true, // Allow asynchronous rendering for better GPU usage
       willReadFrequently: false, // Optimize for GPU rendering, not CPU reading
     });
