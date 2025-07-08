@@ -200,19 +200,37 @@ export const MobileOptimizedWebGLStars: React.FC<
     scene.add(points);
   }, [stars, cameraX, cameraY, width, height]);
 
-  // Optimized animation loop with conservative frame timing for mobile
+  // Optimized animation loop with unlimited FPS for 120Hz+ mobile displays
   useEffect(() => {
     if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
-    // FPS uncapped for mobile WebGL - maximum performance
-    const targetFPS = 0; // Unlimited FPS for mobile
-    const frameInterval = 0;
-
     const animate = (currentTime: number) => {
-      // FPS uncapped - no frame rate limiting for mobile devices
-      lastFrameTime.current = currentTime;
+      // FPS completely uncapped - supports full 120Hz on iPhone 16 Pro Max
+      // No frame limiting whatsoever for maximum performance and refresh rate
 
-      // Render frame at maximum possible FPS
+      // Update positions for camera movement
+      if (pointsRef.current && pointsRef.current.geometry) {
+        const positions = pointsRef.current.geometry.attributes.position
+          .array as Float32Array;
+        const originalStars =
+          stars.length > 3000
+            ? stars
+                .filter((_, i) => i % Math.ceil(stars.length / 3000) === 0)
+                .slice(0, 3000)
+            : stars;
+
+        originalStars.forEach((star, i) => {
+          const parallaxX = (star.x - cameraX) * star.parallax;
+          const parallaxY = (star.y - cameraY) * star.parallax;
+
+          positions[i * 3] = parallaxX;
+          positions[i * 3 + 1] = parallaxY;
+        });
+
+        pointsRef.current.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // Render at maximum refresh rate (uncapped)
       rendererRef.current!.render(sceneRef.current!, cameraRef.current!);
       animationIdRef.current = requestAnimationFrame(animate);
     };
@@ -224,7 +242,7 @@ export const MobileOptimizedWebGLStars: React.FC<
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, []);
+  }, [stars, cameraX, cameraY]);
 
   // Update camera when dimensions change
   useEffect(() => {
