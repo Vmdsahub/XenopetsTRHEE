@@ -2874,7 +2874,10 @@ const SpaceMapComponent: React.FC = () => {
                   ?.size || 60
               }
               onChange={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const newSize = Number(e.target.value);
+                console.log("📏 Size control changed to:", newSize);
 
                 // Update immediately for responsive feedback
                 planetsRef.current = planetsRef.current.map((planet) =>
@@ -2891,17 +2894,18 @@ const SpaceMapComponent: React.FC = () => {
                 clearTimeout((window as any).worldSizeTimeout);
                 (window as any).worldSizeTimeout = setTimeout(async () => {
                   if (selectedWorldId) {
-                    console.log("📏 Attempting to save world size:", {
-                      selectedWorldId,
-                      newSize,
-                    });
                     console.log("📏 Saving world size:", {
                       selectedWorldId,
                       newSize,
                     });
-                    updateWorldPosition(selectedWorldId, {
-                      size: newSize,
-                    });
+                    try {
+                      updateWorldPosition(selectedWorldId, {
+                        size: newSize,
+                      });
+                      console.log("📏 Size saved successfully");
+                    } catch (error) {
+                      console.error("📏 Error saving size:", error);
+                    }
                   }
                 }, 300);
               }}
